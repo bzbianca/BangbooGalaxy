@@ -38,15 +38,16 @@ public class RhythmGame extends JFrame {
         };
         
         // UI Colors - change these to customize the interface
-        public static final Color PRIMARY_COLOR = new Color(138, 43, 226); // Main theme
-        public static final Color SECONDARY_COLOR = new Color(75, 0, 130); // Secondary theme
-        public static final Color ACCENT_COLOR = new Color(255, 20, 147); // Highlights
-        public static final Color BACKGROUND_COLOR = new Color(25, 25, 35); // Main background
-        public static final Color SURFACE_COLOR = new Color(40, 40, 55); // Panel backgrounds
-        public static final Color TEXT_COLOR = new Color(255, 255, 255); // Text color
-        public static final Color SUCCESS_COLOR = new Color(46, 213, 115); // Success feedback
-        public static final Color WARNING_COLOR = new Color(255, 184, 0); // Warning feedback
-        public static final Color DANGER_COLOR = new Color(255, 71, 87); // Error/danger
+        // Zenless Zone Zero inspired color scheme with orange
+        public static final Color BACKGROUND_COLOR = new Color(15, 15, 20); // Very dark blue-black
+        public static final Color PRIMARY_COLOR = new Color(255, 150, 0); // Orange
+        public static final Color SECONDARY_COLOR = new Color(20, 20, 30); // Dark blue-gray
+        public static final Color ACCENT_COLOR = new Color(255, 200, 50); // Light orange
+        public static final Color SUCCESS_COLOR = new Color(0, 255, 150); // Cyan-green
+        public static final Color WARNING_COLOR = new Color(255, 200, 0); // Yellow
+        public static final Color DANGER_COLOR = new Color(255, 50, 50); // Red
+        public static final Color TEXT_COLOR = new Color(220, 220, 220); // Light gray
+        public static final Color SURFACE_COLOR = new Color(25, 25, 35); // Dark surface
         
         // === SIZES ===
         // Note sizes - modify to change note dimensions
@@ -72,22 +73,23 @@ public class RhythmGame extends JFrame {
         
         // === TEXT ===
         // Text content - easily change all text in the game
-        public static final String GAME_TITLE = "🎵 Bangboo Galaxy 🎵";
-        public static final String PLAY_BUTTON_TEXT = "🎮 Play Game";
-        public static final String SETTINGS_BUTTON_TEXT = "⚙️ Settings";
-        public static final String QUIT_BUTTON_TEXT = "🚪 Quit";
-        public static final String BACK_BUTTON_TEXT = "🔙 Back to Main";
-        public static final String SONG_SELECTION_TITLE = "🎵 Select Song";
-        public static final String SETTINGS_TITLE = "⚙️ Settings";
+        public static final String GAME_TITLE = "Bangboo Galaxy";
+        public static final String PLAY_BUTTON_TEXT = "Play Game";
+        public static final String SETTINGS_BUTTON_TEXT = "Settings";
+        public static final String QUIT_BUTTON_TEXT = "Quit";
+        public static final String BACK_BUTTON_TEXT = "Back to Main";
+        public static final String SONG_SELECTION_TITLE = "Select Song";
+        public static final String SETTINGS_TITLE = "Settings";
         public static final String PAUSED_TITLE = "PAUSED";
-        public static final String RESUME_BUTTON_TEXT = "▶️ Resume";
-        public static final String SONG_SELECTION_BUTTON_TEXT = "🎵 Song Selection";
-        public static final String QUIT_GAME_BUTTON_TEXT = "🚪 Quit";
+        public static final String RESUME_BUTTON_TEXT = "Resume";
+        public static final String SONG_SELECTION_BUTTON_TEXT = "Song Selection";
+        public static final String QUIT_GAME_BUTTON_TEXT = "Quit";
         
         // === BUTTON COLORS ===
-        // Main menu button colors
-        public static final Color MAIN_BUTTON_COLOR = new Color(30, 30, 30); // Black
-        public static final Color MAIN_BUTTON_HOVER_COLOR = new Color(60, 60, 60); // Dark gray
+        // ZZZ black style buttons with orange borders
+        public static final Color MAIN_BUTTON_COLOR = new Color(20, 20, 25); // Very dark
+        public static final Color MAIN_BUTTON_HOVER_COLOR = new Color(40, 40, 50); // Dark gray
+        public static final Color BUTTON_BORDER_COLOR = new Color(255, 150, 0); // Orange border
         
         // === ASSET FOLDERS ===
         // Asset folders - customize these paths
@@ -311,38 +313,31 @@ public class RhythmGame extends JFrame {
     public RhythmGame() {
         setTitle("Bangboo Galaxy");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-
-        // Load all assets
-        GameAssets.loadAllAssets();
+        setResizable(true);
         
-        // Use default look and feel
-
+        // Set to fullscreen by default
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setUndecorated(true); // Remove window decorations for true fullscreen
+        
+        mainPanel = new JPanel();
         cardLayout = new CardLayout();
-        mainPanel = new JPanel(cardLayout);
-        mainPanel.setBackground(GameAssets.BACKGROUND_COLOR);
-
+        mainPanel.setLayout(cardLayout);
+        
         menuPanel = new MenuPanel();
         gamePanel = new GamePanel();
         settingsPanel = new SettingsPanel();
         songSelectionPanel = new SongSelectionPanel();
-
+        
         mainPanel.add(menuPanel, "Menu");
         mainPanel.add(gamePanel, "Game");
         mainPanel.add(settingsPanel, "Settings");
         mainPanel.add(songSelectionPanel, "SongSelection");
-
+        
         add(mainPanel);
-
-        pack();
-        setLocationRelativeTo(null);
+        
         setVisible(true);
     }
-
-    public void startGame() {
-        cardLayout.show(mainPanel, "SongSelection");
-    }
-
+    
     public void showSettings() {
         cardLayout.show(mainPanel, "Settings");
         // Request focus for keybind input
@@ -358,7 +353,6 @@ public class RhythmGame extends JFrame {
     }
 
     public void startGameWithSong(Song song) {
-        gamePanel.setCurrentSong(song);
         gamePanel.resetGame();
         cardLayout.show(mainPanel, "Game");
         gamePanel.requestFocus();
@@ -425,14 +419,14 @@ public class RhythmGame extends JFrame {
 
             // Create modern play button with customizable color
             JButton playButton = createModernButton(GameAssets.PLAY_BUTTON_TEXT, GameAssets.MAIN_BUTTON_COLOR, GameAssets.MAIN_BUTTON_HOVER_COLOR);
-            playButton.addActionListener(e -> startGame());
+            playButton.addActionListener(e -> ((RhythmGame) SwingUtilities.getWindowAncestor(this)).showSongSelection());
             playButton.setPreferredSize(GameAssets.MAIN_BUTTON_SIZE);
             gbc.gridy = 0;
             centerPanel.add(playButton, gbc);
 
             // Create modern settings button with customizable color
             JButton settingsButton = createModernButton(GameAssets.SETTINGS_BUTTON_TEXT, GameAssets.MAIN_BUTTON_COLOR, GameAssets.MAIN_BUTTON_HOVER_COLOR);
-            settingsButton.addActionListener(e -> showSettings());
+            settingsButton.addActionListener(e -> ((RhythmGame) SwingUtilities.getWindowAncestor(this)).showSettings());
             settingsButton.setPreferredSize(GameAssets.MAIN_BUTTON_SIZE);
             gbc.gridy = 1;
             centerPanel.add(settingsButton, gbc);
@@ -525,7 +519,7 @@ public class RhythmGame extends JFrame {
             titlePanel.setOpaque(false);
             titlePanel.setPreferredSize(new Dimension(800, 100));
             
-            JLabel titleLabel = new JLabel("🎵 Select Song", SwingConstants.CENTER);
+            JLabel titleLabel = new JLabel("Select Song", SwingConstants.CENTER);
             titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 48));
             titleLabel.setForeground(GameAssets.TEXT_COLOR);
             titlePanel.add(titleLabel);
@@ -566,7 +560,7 @@ public class RhythmGame extends JFrame {
             buttonPanel.setBackground(GameAssets.BACKGROUND_COLOR);
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0));
             
-            playButton = createModernButton("▶️ Play", GameAssets.SUCCESS_COLOR, new Color(100, 250, 150));
+            playButton = createModernButton("Play", GameAssets.SUCCESS_COLOR, new Color(100, 250, 150));
             playButton.addActionListener(e -> {
                 if (selectedSong != null) {
                     startGameWithSong(selectedSong);
@@ -646,26 +640,32 @@ public class RhythmGame extends JFrame {
                     if (selectedSong != null) {
                         for (Component comp : songsGridPanel.getComponents()) {
                             comp.setBackground(GameAssets.SURFACE_COLOR);
+                            if (comp instanceof JPanel) {
+                                ((JPanel) comp).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                            }
                         }
                     }
                     
                     // Select new song
                     selectedSong = song;
                     songPanel.setBackground(GameAssets.ACCENT_COLOR);
+                    songPanel.setBorder(BorderFactory.createLineBorder(GameAssets.ACCENT_COLOR, 3));
                     playButton.setEnabled(true);
                 }
                 
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
                     if (selectedSong != song) {
-                        songPanel.setBackground(new Color(GameAssets.SURFACE_COLOR.getRed(), 
-                                                     GameAssets.SURFACE_COLOR.getGreen(), 
-                                                     GameAssets.SURFACE_COLOR.getBlue(), 200));
+                        songPanel.setBackground(new Color(100, 100, 150));
+                        songPanel.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 200), 2));
+                        songPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
                     }
                 }
                 
                 public void mouseExited(java.awt.event.MouseEvent evt) {
                     if (selectedSong != song) {
                         songPanel.setBackground(GameAssets.SURFACE_COLOR);
+                        songPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                        songPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                     }
                 }
             });
@@ -688,6 +688,11 @@ public class RhythmGame extends JFrame {
                     
                     RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15);
                     g2d.fill(roundedRect);
+                    
+                    // Draw cyan border for ZZZ style
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.draw(roundedRect);
                     
                     super.paintComponent(g);
                 }
@@ -984,23 +989,30 @@ public class RhythmGame extends JFrame {
     }
 
     class GamePanel extends JPanel {
-        private static final int WIDTH = 800;
-        private static final int HEIGHT = 800;
-        private static final int LANE_WIDTH = 60;
-        private static final int LANE_GAP = 20;
+        private static final int LANE_GAP = 30; // Increased gap for wider lanes
         private static final int NUM_LANES = 4;
-        private static final int TOTAL_LANES_WIDTH = NUM_LANES * LANE_WIDTH + (NUM_LANES - 1) * LANE_GAP;
-        private static final int START_X = (WIDTH - TOTAL_LANES_WIDTH) / 2;
-        private static final int[] LANE_POSITIONS = new int[NUM_LANES];
-        private static final int HIT_ZONE_Y = 500;
         private static final int MAX_COMBO_FOR_FEVER = 20;
         private static final int FEVER_DURATION = 5000; // ms
-
-        static {
-            for (int i = 0; i < NUM_LANES; i++) {
-                LANE_POSITIONS[i] = START_X + i * (LANE_WIDTH + LANE_GAP);
-            }
-        }
+        
+        // Timing windows for scoring (in pixels)
+        private static final int PERFECT_WINDOW = 20;
+        private static final int GOOD_WINDOW = 40;
+        private static final int OKAY_WINDOW = 60;
+        
+        // Scoring values
+        private static final int PERFECT_SCORE = 50;
+        private static final int GOOD_SCORE = 30;
+        private static final int OKAY_SCORE = 10;
+        private static final int MISS_SCORE = 0;
+        
+        // Dynamic dimensions
+        private int WIDTH;
+        private int HEIGHT;
+        private int TOTAL_LANES_WIDTH;
+        private int START_X;
+        private int LANE_WIDTH; // Now dynamic, not static
+        private static final int[] LANE_POSITIONS = new int[NUM_LANES];
+        private int HIT_ZONE_Y; // Will be set to bottom of screen
 
         private List<Note> notes;
         private boolean[] keysPressed;
@@ -1012,15 +1024,18 @@ public class RhythmGame extends JFrame {
         private int score;
         private int combo;
         private List<Particle> particles;
+        private List<TimingRating> timingRatings;
         private boolean isPaused = false;
         private JPanel pauseOverlay;
         private JButton resumeButton;
-        private JButton menuButton;
+        private JButton songSelectionButton;
+        private JButton mainMenuButton;
         private JButton quitButton;
-        private Song currentSong;
 
         public GamePanel() {
-            setPreferredSize(new Dimension(WIDTH, HEIGHT));
+            // Initialize dynamic dimensions
+            updateDimensions();
+            
             setBackground(GameAssets.BACKGROUND_COLOR);
 
             timer = new Timer(16, e -> {
@@ -1028,6 +1043,14 @@ public class RhythmGame extends JFrame {
                     update();
                 }
                 repaint();
+            });
+            
+            // Add component listener to handle resize
+            addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    updateDimensions();
+                }
             });
 
             addKeyListener(new KeyAdapter() {
@@ -1054,9 +1077,26 @@ public class RhythmGame extends JFrame {
             setupPauseOverlay();
             resetGame();
         }
-
-        public void setCurrentSong(Song song) {
-            this.currentSong = song;
+        
+        private void updateDimensions() {
+            WIDTH = getWidth();
+            HEIGHT = getHeight();
+            
+            // Make lanes take 1/3 of screen center
+            TOTAL_LANES_WIDTH = WIDTH / 3;
+            // Calculate individual lane width to fit 4 lanes with gaps
+            LANE_WIDTH = (TOTAL_LANES_WIDTH - (NUM_LANES - 1) * LANE_GAP) / NUM_LANES;
+            
+            START_X = (WIDTH - TOTAL_LANES_WIDTH) / 2;
+            HIT_ZONE_Y = HEIGHT - 100; // Set hit zone to very bottom of screen
+            
+            // Update lane positions
+            for (int i = 0; i < NUM_LANES; i++) {
+                LANE_POSITIONS[i] = START_X + i * (LANE_WIDTH + LANE_GAP);
+            }
+            
+            // Update pause button positions
+            updatePauseButtonPositions();
         }
         
         private void setupPauseOverlay() {
@@ -1065,82 +1105,31 @@ public class RhythmGame extends JFrame {
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
                     Graphics2D g2d = (Graphics2D) g;
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     
-                    // Semi-transparent background with better opacity
-                    g2d.setColor(new Color(0, 0, 0, 220));
+                    // Semi-transparent background (no panel)
+                    g2d.setColor(new Color(0, 0, 0, 180));
                     g2d.fillRect(0, 0, WIDTH, HEIGHT);
-                    
-                    // Pause menu panel
-                    int panelWidth = 300;
-                    int panelHeight = 200;
-                    int panelX = (WIDTH - panelWidth) / 2;
-                    int panelY = (HEIGHT - panelHeight) / 2;
-                    
-                    // Panel background with gradient
-                    GradientPaint panelGradient = new GradientPaint(panelX, panelY, GameAssets.SECONDARY_COLOR, panelX + panelWidth, panelY + panelHeight, GameAssets.PRIMARY_COLOR);
-                    g2d.setPaint(panelGradient);
-                    g2d.fillRoundRect(panelX, panelY, panelWidth, panelHeight, 20, 20);
-                    
-                    // Panel border
-                    g2d.setPaint(null);
-                    g2d.setColor(GameAssets.TEXT_COLOR);
-                    g2d.setStroke(new BasicStroke(3));
-                    g2d.drawRoundRect(panelX, panelY, panelWidth, panelHeight, 20, 20);
-                    
-                    // Title
-                    g2d.setFont(new Font("Segoe UI", Font.BOLD, 32));
-                    FontMetrics fm = g2d.getFontMetrics();
-                    String title = "PAUSED";
-                    int titleWidth = fm.stringWidth(title);
-                    g2d.drawString(title, panelX + (panelWidth - titleWidth) / 2, panelY + 50);
-                    
-                    // Current song info
-                    if (currentSong != null) {
-                        g2d.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-                        String songText = "Now Playing: " + currentSong.title;
-                        int songWidth = fm.stringWidth(songText);
-                        g2d.drawString(songText, panelX + (panelWidth - songWidth) / 2, panelY + 90);
-                    }
                 }
             };
             pauseOverlay.setOpaque(false);
             pauseOverlay.setVisible(false);
             pauseOverlay.setLayout(null);
 
-            // Create pause buttons
-            resumeButton = createPauseButton("▶️ Resume", GameAssets.SUCCESS_COLOR, new Color(100, 250, 150));
-            resumeButton.setBounds(50, 150, 250, 50);
-            resumeButton.addActionListener(e -> togglePause());
-
-            menuButton = createPauseButton("� Song Selection", GameAssets.WARNING_COLOR, new Color(255, 220, 100));
-            menuButton.setBounds(50, 210, 250, 50);
-            menuButton.addActionListener(e -> backToSongSelection());
-
-            quitButton = createPauseButton("🚪 Quit", GameAssets.DANGER_COLOR, new Color(250, 100, 100));
-            quitButton.setBounds(50, 270, 250, 50);
-            quitButton.addActionListener(e -> System.exit(0));
-
-            pauseOverlay.add(resumeButton);
-            pauseOverlay.add(menuButton);
-            pauseOverlay.add(quitButton);
-        }
-        
-        private JButton createPauseButton(String text, Color bgColor, Color hoverColor) {
-            JButton button = new JButton(text) {
+            // Create pause buttons - will be positioned dynamically
+            resumeButton = new JButton("Resume") {
                 @Override
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2d = (Graphics2D) g;
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     
-                    if (getModel().isRollover()) {
-                        g2d.setColor(hoverColor);
-                    } else {
-                        g2d.setColor(bgColor);
-                    }
-                    
-                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10);
+                    g2d.setColor(Color.BLACK);
+                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15);
                     g2d.fill(roundedRect);
+                    
+                    // Draw orange border for ZZZ style
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.draw(roundedRect);
                     
                     super.paintComponent(g);
                 }
@@ -1153,19 +1142,142 @@ public class RhythmGame extends JFrame {
                     return false;
                 }
             };
+            resumeButton.setForeground(Color.WHITE);
+            resumeButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            resumeButton.setFocusPainted(false);
+            resumeButton.addActionListener(e -> togglePause());
+
+            songSelectionButton = new JButton("Song Selection") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    g2d.setColor(Color.BLACK);
+                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15);
+                    g2d.fill(roundedRect);
+                    
+                    // Draw orange border for ZZZ style
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.draw(roundedRect);
+                    
+                    super.paintComponent(g);
+                }
+                
+                @Override
+                public void setContentAreaFilled(boolean b) {}
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            songSelectionButton.setForeground(Color.WHITE);
+            songSelectionButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            songSelectionButton.setFocusPainted(false);
+            songSelectionButton.addActionListener(e -> backToSongSelection());
+
+            mainMenuButton = new JButton("Main Menu") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    g2d.setColor(Color.BLACK);
+                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15);
+                    g2d.fill(roundedRect);
+                    
+                    // Draw orange border for ZZZ style
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.draw(roundedRect);
+                    
+                    super.paintComponent(g);
+                }
+                
+                @Override
+                public void setContentAreaFilled(boolean b) {}
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            mainMenuButton.setForeground(Color.WHITE);
+            mainMenuButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            mainMenuButton.setFocusPainted(false);
+            mainMenuButton.addActionListener(e -> backToMenu());
+
+            quitButton = new JButton("Quit") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    g2d.setColor(Color.BLACK);
+                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15);
+                    g2d.fill(roundedRect);
+                    
+                    // Draw orange border for ZZZ style
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.draw(roundedRect);
+                    
+                    super.paintComponent(g);
+                }
+                
+                @Override
+                public void setContentAreaFilled(boolean b) {}
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            quitButton.setForeground(Color.WHITE);
+            quitButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            quitButton.setFocusPainted(false);
+            quitButton.addActionListener(e -> System.exit(0));
+
+            pauseOverlay.add(resumeButton);
+            pauseOverlay.add(songSelectionButton);
+            pauseOverlay.add(mainMenuButton);
+            pauseOverlay.add(quitButton);
             
-            button.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            button.setForeground(GameAssets.TEXT_COLOR);
-            button.setFocusPainted(false);
-            button.setBorderPainted(false);
-            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            // Initial positioning
+            updatePauseButtonPositions();
+        }
+        
+        private void updatePauseButtonPositions() {
+            // Center the pause overlay panel
+            if (pauseOverlay != null) {
+                pauseOverlay.setBounds(0, 0, WIDTH, HEIGHT);
+            }
             
-            return button;
+            // Calculate center position for buttons
+            int centerX = (WIDTH - 300) / 2;
+            int centerY = (HEIGHT - 200) / 2; // Adjusted for 4 buttons
+            
+            // Update button positions to be perfectly centered
+            if (resumeButton != null) {
+                resumeButton.setBounds(centerX, centerY, 300, 50);
+            }
+            if (songSelectionButton != null) {
+                songSelectionButton.setBounds(centerX, centerY + 60, 300, 50);
+            }
+            if (mainMenuButton != null) {
+                mainMenuButton.setBounds(centerX, centerY + 120, 300, 50);
+            }
+            if (quitButton != null) {
+                quitButton.setBounds(centerX, centerY + 180, 300, 50);
+            }
         }
         
         private void togglePause() {
             isPaused = !isPaused;
             if (isPaused) {
+                updatePauseButtonPositions(); // Update positions before showing
                 add(pauseOverlay);
                 pauseOverlay.setVisible(true);
                 setLayout(new OverlayLayout(this));
@@ -1206,54 +1318,34 @@ public class RhythmGame extends JFrame {
                 g2d.drawRoundRect(x, 0, LANE_WIDTH, HEIGHT, 10, 10);
             }
             
-            // Draw game elements only if not paused
-            if (!isPaused) {
-                // Draw score panel
-                drawScorePanel(g2d);
-                
-                // Draw fever bar
-                drawFeverBar(g2d);
-                
-                // Draw hit zone with arrow shapes
-                drawHitZone(g2d);
-                
-                // Draw key indicators
-                drawKeyIndicators(g2d);
-                
-                // Draw particles
-                particles.forEach(particle -> particle.draw(g2d));
-                
-                // Draw notes
-                notes.forEach(note -> note.draw(g2d));
-            }
+            // Draw game elements (always visible, even when paused)
+            // Draw score panel
+            drawScorePanel(g2d);
             
-            // Draw pause icon in top right
-            drawPauseIcon(g2d);
+            // Draw fever bar
+            drawFeverBar(g2d);
+            
+            // Always draw these elements (but they won't update when paused)
+            // Draw hit zone with arrow shapes
+            drawHitZone(g2d);
+            
+            // Draw particles
+            particles.forEach(particle -> particle.draw(g2d));
+            
+            // Draw timing ratings
+            timingRatings.forEach(rating -> rating.draw(g2d));
+            
+            // Draw notes
+            notes.forEach(note -> note.draw(g2d));
             
             // Draw pause overlay if paused
             if (isPaused) {
+                // Add dimming effect to show game is frozen
+                g2d.setColor(new Color(0, 0, 0, 100));
+                g2d.fillRect(0, 0, WIDTH, HEIGHT);
+                
                 pauseOverlay.paint(g);
             }
-        }
-
-        private void drawPauseIcon(Graphics2D g2d) {
-            int iconSize = 30;
-            int iconX = WIDTH - iconSize - 20;
-            int iconY = 20;
-            
-            // Background circle
-            g2d.setColor(new Color(0, 0, 0, 150));
-            g2d.fillOval(iconX, iconY, iconSize, iconSize);
-            
-            // Border
-            g2d.setColor(GameAssets.TEXT_COLOR);
-            g2d.setStroke(new BasicStroke(2));
-            g2d.drawOval(iconX, iconY, iconSize, iconSize);
-            
-            // Pause symbol (two vertical bars)
-            g2d.setColor(GameAssets.TEXT_COLOR);
-            g2d.fillRect(iconX + 8, iconY + 8, 5, 14);
-            g2d.fillRect(iconX + 17, iconY + 8, 5, 14);
         }
         
         private void drawScorePanel(Graphics2D g2d) {
@@ -1269,7 +1361,7 @@ public class RhythmGame extends JFrame {
             // Score text
             g2d.setColor(GameAssets.TEXT_COLOR);
             g2d.setFont(new Font("Segoe UI", Font.BOLD, 24));
-            g2d.drawString("🎯 Score: " + score, 20, 40);
+            g2d.drawString("Score: " + score, 20, 40);
             
             // Combo text with color based on combo level
             if (combo >= MAX_COMBO_FOR_FEVER - 5) {
@@ -1279,14 +1371,14 @@ public class RhythmGame extends JFrame {
             } else {
                 g2d.setColor(GameAssets.SUCCESS_COLOR);
             }
-            g2d.drawString("🔥 Combo: " + combo, 20, 70);
+            g2d.drawString("Combo: " + combo, 20, 70);
         }
         
         private void drawFeverBar(Graphics2D g2d) {
-            // Smaller fever bar on the right
+            // Fever bar positioned closer to the lanes on the right
             int barWidth = 20;
             int barHeight = 200;
-            int barX = WIDTH - barWidth - 20;
+            int barX = START_X + TOTAL_LANES_WIDTH + 20; // Position right after the lanes
             int barY = HEIGHT - barHeight - 20;
             
             // Bar background
@@ -1317,16 +1409,6 @@ public class RhythmGame extends JFrame {
                 g2d.setPaint(progressGradient);
                 g2d.fillRoundRect(barX + 2, barY + barHeight - progressHeight - 2, barWidth - 4, progressHeight, 8, 8);
             }
-            
-            // Fever text
-            g2d.setPaint(null);
-            g2d.setColor(GameAssets.TEXT_COLOR);
-            g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            if (feverActive) {
-                g2d.drawString("🔥", barX - 20, barY + barHeight / 2);
-            } else {
-                g2d.drawString("⚡", barX - 20, barY + barHeight / 2);
-            }
         }
         
         private void drawHitZone(Graphics2D g2d) {
@@ -1334,12 +1416,6 @@ public class RhythmGame extends JFrame {
             GradientPaint hitZoneGradient = new GradientPaint(0, HIT_ZONE_Y - 10, new Color(255, 255, 255, 0), 0, HIT_ZONE_Y + 10, new Color(255, 255, 255, 50));
             g2d.setPaint(hitZoneGradient);
             g2d.fillRect(0, HIT_ZONE_Y - 5, WIDTH, 10);
-            
-            // Hit zone line
-            g2d.setPaint(null);
-            g2d.setColor(GameAssets.ACCENT_COLOR);
-            g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2d.drawLine(START_X - 10, HIT_ZONE_Y, START_X + TOTAL_LANES_WIDTH + 10, HIT_ZONE_Y);
             
             // Draw arrow-shaped hit zone markers
             for (int i = 0; i < NUM_LANES; i++) {
@@ -1349,39 +1425,6 @@ public class RhythmGame extends JFrame {
             }
         }
         
-        private void drawKeyIndicators(Graphics2D g2d) {
-            int[] keyMap = ((RhythmGame) SwingUtilities.getWindowAncestor(this)).getKeybinds();
-            String[] keyNames = new String[4];
-            for (int i = 0; i < 4; i++) {
-                keyNames[i] = KeyEvent.getKeyText(keyMap[i]);
-            }
-            
-            for (int i = 0; i < NUM_LANES; i++) {
-                int keyX = LANE_POSITIONS[i] + LANE_WIDTH / 2;
-                int keyY = HIT_ZONE_Y + 40;
-                
-                // Key background with better visibility
-                if (keysPressed[keyMap[i]]) {
-                    g2d.setColor(GameAssets.ACCENT_COLOR);
-                    g2d.fillRoundRect(keyX - 30, keyY - 15, 60, 30, 10, 10);
-                    g2d.setColor(GameAssets.TEXT_COLOR);
-                } else {
-                    g2d.setColor(new Color(255, 255, 255, 40));
-                    g2d.fillRoundRect(keyX - 30, keyY - 15, 60, 30, 10, 10);
-                    g2d.setColor(new Color(255, 255, 255, 220));
-                }
-                
-                // Key border
-                g2d.setStroke(new BasicStroke(2));
-                g2d.drawRoundRect(keyX - 30, keyY - 15, 60, 30, 10, 10);
-                
-                // Key text
-                g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
-                FontMetrics fm = g2d.getFontMetrics();
-                g2d.drawString(keyNames[i], keyX - fm.stringWidth(keyNames[i]) / 2, keyY + 5);
-            }
-        }
-
         public void resetGame() {
             if (timer.isRunning()) {
                 timer.stop();
@@ -1395,6 +1438,7 @@ public class RhythmGame extends JFrame {
             score = 0;
             combo = 0;
             particles = new ArrayList<>();
+            timingRatings = new ArrayList<>();
             isPaused = false;
             pauseOverlay.setVisible(false);
             remove(pauseOverlay);
@@ -1416,12 +1460,18 @@ public class RhythmGame extends JFrame {
             particles.forEach(Particle::update);
             particles.removeIf(Particle::isDead);
             
+            // Update timing ratings
+            timingRatings.forEach(TimingRating::update);
+            timingRatings.removeIf(TimingRating::isDead);
+            
             notes.forEach(Note::update);
             checkHits();
             notes.removeIf(note -> {
                 if (note.y >= HEIGHT) {
                     if (!note.hit) {
                         combo = 0;
+                        // Add MISS rating for notes that pass without being hit
+                        timingRatings.add(new TimingRating("MISS", note.lane));
                     }
                     return true;
                 }
@@ -1429,21 +1479,55 @@ public class RhythmGame extends JFrame {
             });
             if (feverActive && System.currentTimeMillis() - feverStartTime > FEVER_DURATION) {
                 feverActive = false;
+                combo = 0; // Reset combo when fever ends so it can be restarted
             }
         }
 
         private void checkHits() {
             int[] keyMap = ((RhythmGame) SwingUtilities.getWindowAncestor(this)).getKeybinds();
+            
+            // Reset all notes glowing state
+            notes.forEach(note -> note.glowing = false);
+            
             for (int i = 0; i < notes.size(); i++) {
                 Note note = notes.get(i);
                 if (note.isInHitZone() && keysPressed[keyMap[note.direction]]) {
-                    int points = feverActive ? 20 : 10;
-                    score += points;
-                    combo++;
-                    if (combo >= MAX_COMBO_FOR_FEVER && !feverActive) {
-                        feverActive = true;
-                        feverStartTime = System.currentTimeMillis();
+                    // Make note glow
+                    note.glowing = true;
+                    
+                    // Calculate timing accuracy
+                    int distanceFromHitZone = Math.abs(note.y + GameAssets.NOTE_SIZE / 2 - HIT_ZONE_Y);
+                    String rating;
+                    int points;
+                    
+                    if (distanceFromHitZone <= PERFECT_WINDOW) {
+                        rating = "PERFECT";
+                        points = PERFECT_SCORE;
+                    } else if (distanceFromHitZone <= GOOD_WINDOW) {
+                        rating = "GOOD";
+                        points = GOOD_SCORE;
+                    } else if (distanceFromHitZone <= OKAY_WINDOW) {
+                        rating = "OKAY";
+                        points = OKAY_SCORE;
+                    } else {
+                        rating = "MISS";
+                        points = MISS_SCORE;
+                        combo = 0;
                     }
+                    
+                    // Add rating display
+                    timingRatings.add(new TimingRating(rating, note.lane));
+                    
+                    // Update score and combo
+                    score += points;
+                    if (!rating.equals("MISS")) {
+                        combo++;
+                        if (combo >= MAX_COMBO_FOR_FEVER && !feverActive) {
+                            feverActive = true;
+                            feverStartTime = System.currentTimeMillis();
+                        }
+                    }
+                    
                     // Create hit particles
                     for (int j = 0; j < GameAssets.PARTICLE_COUNT; j++) {
                         particles.add(new Particle(
@@ -1565,11 +1649,13 @@ public class RhythmGame extends JFrame {
             int y = 0;
             int x;
             boolean hit = false;
+            boolean glowing = false; // Track if note should glow
 
             Note(int lane, int direction) {
                 this.lane = lane;
                 this.direction = direction;
-                this.x = LANE_POSITIONS[lane];
+                // Position note in center of its lane
+                this.x = LANE_POSITIONS[lane] + LANE_WIDTH / 2;
             }
 
             void update() {
@@ -1577,11 +1663,78 @@ public class RhythmGame extends JFrame {
             }
 
             void draw(Graphics2D g2d) {
-                drawArrow(g2d, x + LANE_WIDTH / 2, y + GameAssets.NOTE_SIZE / 2, GameAssets.ARROW_SIZE, direction, false);
+                // Draw glow effect if note is being pressed
+                if (glowing) {
+                    g2d.setColor(new Color(255, 255, 100, 100));
+                    g2d.fillOval(x - GameAssets.ARROW_SIZE, y + GameAssets.NOTE_SIZE / 2 - GameAssets.ARROW_SIZE, 
+                               GameAssets.ARROW_SIZE * 2, GameAssets.ARROW_SIZE * 2);
+                }
+                
+                // Draw arrow centered in the lane
+                drawArrow(g2d, x, y + GameAssets.NOTE_SIZE / 2, GameAssets.ARROW_SIZE, direction, false);
             }
 
             boolean isInHitZone() {
                 return y + GameAssets.NOTE_SIZE > HIT_ZONE_Y && y < HEIGHT;
+            }
+        }
+        
+        class TimingRating {
+            String rating;
+            int y;
+            int targetY;
+            int life;
+            Color color;
+            
+            TimingRating(String rating, int lane) {
+                this.rating = rating;
+                this.y = HIT_ZONE_Y;
+                this.targetY = HIT_ZONE_Y - 200; // Same height as fever meter
+                this.life = 60; // Frames to display
+                
+                // Set color based on rating
+                switch (rating) {
+                    case "PERFECT":
+                        color = new Color(255, 215, 0); // Gold
+                        break;
+                    case "GOOD":
+                        color = new Color(0, 255, 150); // Green
+                        break;
+                    case "OKAY":
+                        color = new Color(255, 200, 0); // Yellow
+                        break;
+                    case "MISS":
+                        color = new Color(255, 50, 50); // Red
+                        break;
+                }
+            }
+            
+            void update() {
+                if (y > targetY) {
+                    y -= 3; // Move upward
+                }
+                life--;
+            }
+            
+            void draw(Graphics2D g2d) {
+                if (life <= 0) return;
+                
+                // Calculate opacity based on life
+                float opacity = Math.min(1.0f, life / 30.0f);
+                g2d.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(255 * opacity)));
+                
+                // Draw rating text
+                g2d.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                FontMetrics fm = g2d.getFontMetrics();
+                int textWidth = fm.stringWidth(rating);
+                
+                // Position on the left side of the lanes
+                int x = START_X - textWidth - 20;
+                g2d.drawString(rating, x, y);
+            }
+            
+            boolean isDead() {
+                return life <= 0;
             }
         }
     }
