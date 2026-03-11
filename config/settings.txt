@@ -1,2 +1,6 @@
 music_volume=1.0
 sfx_volume=1.0
+keybind_lane_0=68
+keybind_lane_1=88
+keybind_lane_2=66
+keybind_lane_3=86
