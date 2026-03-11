@@ -24,7 +24,6 @@ public class RhythmGame extends JFrame {
     private GamePanel gamePanel;
     private SettingsPanel settingsPanel;
     private SongSelectionPanel songSelectionPanel;
-    private CreditsPanel creditsPanel;
     private int[] keybinds = {90, 88, 44, 46}; // Z X , . (KeyEvent.VK codes)
 
     // EASY TO MODIFY VISUAL ASSETS
@@ -205,7 +204,7 @@ public class RhythmGame extends JFrame {
         // Cached loaded assets
         private static BufferedImage[] arrowImages = new BufferedImage[4];
         private static BufferedImage[] arrowGlowImages = new BufferedImage[4];
-        private static BufferedImage[] backgroundImages = new BufferedImage[4];
+        private static BufferedImage[] backgroundImages = new BufferedImage[5]; // Fixed: was 4, now 5 to match BACKGROUND_FILES
         private static BufferedImage[] buttonImages = new BufferedImage[BUTTON_FILES.length];
         private static BufferedImage[] numberImages = new BufferedImage[10];
         private static BufferedImage[] textImages = new BufferedImage[TEXT_FILES.length];
@@ -218,6 +217,13 @@ public class RhythmGame extends JFrame {
             
             // Create folders if they don't exist
             createAssetFolders();
+            
+            // Ensure maps folder exists for robust map loading
+            File mapsFolder = new File(MAPS_FOLDER);
+            if (!mapsFolder.exists()) {
+                mapsFolder.mkdirs();
+                System.out.println("Created maps folder: " + MAPS_FOLDER);
+            }
             
             // Load arrow images
             loadArrowImages();
@@ -288,7 +294,7 @@ public class RhythmGame extends JFrame {
         }
         
         private static void loadBackgroundImages() {
-            for (int i = 0; i < BACKGROUND_FILES.length; i++) {
+            for (int i = 0; i < BACKGROUND_FILES.length && i < backgroundImages.length; i++) {
                 try {
                     File bgFile = new File(BACKGROUNDS_FOLDER + BACKGROUND_FILES[i]);
                     if (bgFile.exists()) {
@@ -388,22 +394,34 @@ public class RhythmGame extends JFrame {
         // === ASSET ACCESS METHODS ===
         public static BufferedImage getArrowImage(int direction) {
             if (!assetsLoaded) loadAllAssets();
-            return arrowImages[direction];
+            if (direction >= 0 && direction < arrowImages.length) {
+                return arrowImages[direction];
+            }
+            return null; // Safe fallback for invalid indices
         }
         
         public static BufferedImage getArrowGlowImage(int direction) {
             if (!assetsLoaded) loadAllAssets();
-            return arrowGlowImages[direction];
+            if (direction >= 0 && direction < arrowGlowImages.length) {
+                return arrowGlowImages[direction];
+            }
+            return null; // Safe fallback for invalid indices
         }
         
         public static BufferedImage getBackgroundImage(int screen) {
             if (!assetsLoaded) loadAllAssets();
-            return backgroundImages[screen];
+            if (screen >= 0 && screen < backgroundImages.length) {
+                return backgroundImages[screen];
+            }
+            return null; // Safe fallback for invalid indices
         }
         
         public static BufferedImage getButtonImage(int buttonIndex) {
             if (!assetsLoaded) loadAllAssets();
-            return buttonImages[buttonIndex];
+            if (buttonIndex >= 0 && buttonIndex < buttonImages.length) {
+                return buttonImages[buttonIndex];
+            }
+            return null; // Safe fallback for invalid indices
         }
         
         public static BufferedImage getNumberImage(int digit) {
@@ -470,6 +488,161 @@ public class RhythmGame extends JFrame {
         public static float DEFAULT_SFX_VOLUME = 1.0f;
         public static float musicVolume = DEFAULT_MUSIC_VOLUME;
         public static float sfxVolume = DEFAULT_SFX_VOLUME;
+        
+        // === UI CUSTOMIZATION ===
+        // Timer and accuracy display settings
+        public static boolean SHOW_COUNTDOWN_TIMER = true;
+        public static boolean SHOW_ACCURACY = true;
+        public static boolean TIMER_DISPLAY_SECONDS = true;
+        public static String TIMER_FORMAT = "%.1fs"; // Format: "%.1fs" for decimal, "%.0fs" for whole seconds
+        
+        // Results screen settings
+        public static boolean SHOW_IN_GAME_RESULTS = true;
+        public static boolean SHOW_RESULTS_TIME = true;
+        public static boolean SHOW_RESULTS_ACCURACY = true;
+        public static boolean SHOW_RESULTS_MAX_COMBO = true;
+        public static boolean SHOW_RESULTS_DETAILED_STATS = true;
+        
+        // Map duration settings
+        public static double MAP_END_BUFFER_SECONDS = 2.0; // Time after last note before map ends
+        public static double MINIMUM_MAP_DURATION = 15.0; // Minimum map duration in seconds
+        public static double DEFAULT_MAP_DURATION = 30.0; // Default duration for empty maps
+        
+        // Note glow settings
+        public static boolean ENABLE_NOTE_GLOW = false; // Set to false to disable note glow completely
+        public static boolean ENABLE_HIT_ZONE_GLOW = true; // Hit zone arrows glow when keys pressed
+        
+        // Ranking thresholds (percentage for perfect hits)
+        public static double S_RANK_THRESHOLD = 0.95; // 95% perfect for S rank
+        public static double A_RANK_THRESHOLD = 0.85; // 85% perfect for A rank
+        public static double B_RANK_THRESHOLD = 0.70; // 70% perfect for B rank
+        public static double C_RANK_THRESHOLD = 0.50; // 50% perfect for C rank
+        
+        // === RESULTS SCREEN CUSTOMIZATION ===
+        // Results panel dimensions
+        public static int RESULTS_PANEL_WIDTH = 550;
+        public static int RESULTS_PANEL_HEIGHT = 450;
+        public static int RESULTS_BORDER_RADIUS = 25;
+        
+        // Results colors and effects
+        public static Color RESULTS_OVERLAY_COLOR = new Color(0, 0, 0, 220);
+        public static Color RESULTS_PANEL_COLOR = GameAssets.SURFACE_COLOR;
+        public static Color RESULTS_PANEL_GRADIENT_END = new Color(40, 40, 50);
+        public static Color RESULTS_BORDER_COLOR = GameAssets.BUTTON_BORDER_COLOR;
+        public static Color RESULTS_INNER_BORDER_COLOR = new Color(255, 165, 0, 100);
+        public static int RESULTS_BORDER_WIDTH = 4;
+        public static int RESULTS_INNER_BORDER_WIDTH = 2;
+        
+        // Results fonts
+        public static String RESULTS_TITLE_FONT = "Segoe UI";
+        public static int RESULTS_TITLE_SIZE = 28;
+        public static String RESULTS_RANK_FONT = "Segoe UI";
+        public static int RESULTS_RANK_SIZE = 72;
+        public static String RESULTS_LABEL_FONT = "Segoe UI";
+        public static int RESULTS_LABEL_SIZE = 20;
+        public static String RESULTS_STATS_FONT = "Segoe UI";
+        public static int RESULTS_STATS_SIZE = 18;
+        
+        // Results positioning
+        public static int RESULTS_TITLE_Y_OFFSET = 50;
+        public static int RESULTS_TITLE_LINE_Y = 65;
+        public static int RESULTS_SEPARATOR_MARGIN = 50;
+        public static int RESULTS_CONTENT_Y_OFFSET = 120;
+        public static int RESULTS_RANK_X_OFFSET = 80;
+        public static int RESULTS_RANK_Y_OFFSET = 50;
+        public static int RESULTS_SCORE_RIGHT_MARGIN = 80;
+        public static int RESULTS_STATS_PANEL_ALPHA = 150;
+        public static int RESULTS_STATS_PANEL_RADIUS = 15;
+        
+        // Results buttons
+        public static int RESULTS_BUTTON_WIDTH = 140;
+        public static int RESULTS_BUTTON_HEIGHT = 40;
+        public static int RESULTS_BUTTON_SPACING = 20;
+        public static int RESULTS_BUTTON_BOTTOM_MARGIN = 60;
+        
+        // Results background images
+        public static String RESULTS_BACKGROUND_IMAGE = "results_bg.png";
+        public static String RESULTS_PANEL_IMAGE = "results_panel.png";
+        public static boolean USE_RESULTS_BACKGROUND_IMAGE = false;
+        public static boolean USE_RESULTS_PANEL_IMAGE = false;
+        
+        // === CREDITS SCREEN CUSTOMIZATION ===
+        // Credits panel dimensions
+        public static int CREDITS_PANEL_WIDTH = 650;
+        public static int CREDITS_PANEL_HEIGHT = 550;
+        public static int CREDITS_BORDER_RADIUS = 20;
+        
+        // Credits colors and effects
+        public static Color CREDITS_OVERLAY_COLOR = new Color(0, 0, 0, 230);
+        public static Color CREDITS_PANEL_COLOR = GameAssets.SURFACE_COLOR;
+        public static Color CREDITS_BORDER_COLOR = GameAssets.BUTTON_BORDER_COLOR;
+        public static int CREDITS_BORDER_WIDTH = 3;
+        
+        // Credits fonts
+        public static String CREDITS_TITLE_FONT = "Segoe UI";
+        public static int CREDITS_TITLE_SIZE = 36;
+        public static String CREDITS_SECTION_FONT = "Segoe UI";
+        public static int CREDITS_SECTION_SIZE = 20;
+        public static String CREDITS_TEXT_FONT = "Segoe UI";
+        public static int CREDITS_TEXT_SIZE = 18;
+        
+        // Credits positioning
+        public static int CREDITS_TITLE_Y_OFFSET = 60;
+        public static int CREDITS_SEPARATOR_Y = 80;
+        public static int CREDITS_CONTENT_Y_OFFSET = 120;
+        public static int CREDITS_LINE_HEIGHT = 30;
+        public static int CREDITS_LEFT_MARGIN = 70;
+        public static int CREDITS_SECTION_SPACING = 20;
+        public static int CREDITS_SEPARATOR_MARGIN = 50;
+        
+        // Credits button
+        public static int CREDITS_BUTTON_WIDTH = 120;
+        public static int CREDITS_BUTTON_HEIGHT = 40;
+        public static int CREDITS_BUTTON_BOTTOM_MARGIN = 60;
+        
+        // Credits background images
+        public static String CREDITS_BACKGROUND_IMAGE = "credits_bg.png";
+        public static String CREDITS_PANEL_IMAGE = "credits_panel.png";
+        public static boolean USE_CREDITS_BACKGROUND_IMAGE = false;
+        public static boolean USE_CREDITS_PANEL_IMAGE = false;
+        
+        // Credits content customization
+        public static String CREDITS_GAME_TITLE = "BANGBOO GALAXY";
+        public static String CREDITS_VERSION = "VERSION 1.0";
+        public static String CREDITS_COPYRIGHT = "© 2024 Bangboo Galaxy";
+        public static String CREDITS_BACK_BUTTON_TEXT = "Back";
+        
+        // Credits sections (can be customized)
+        public static String[] CREDITS_GAME_DEV_SECTION = {
+            "GAME DEVELOPMENT",
+            "Developer: Your Name",
+            "Design: Your Name", 
+            "Programming: Your Name"
+        };
+        public static String[] CREDITS_MUSIC_SECTION = {
+            "MUSIC & SOUNDS",
+            "Placeholder Music Files",
+            "Default Sound Effects"
+        };
+        public static String[] CREDITS_THANKS_SECTION = {
+            "SPECIAL THANKS",
+            "Java Swing Framework",
+            "Open Source Community",
+            "Game Development Resources"
+        };
+        
+        // Image loading utility method
+        public static BufferedImage loadImage(String imagePath) {
+            try {
+                File file = new File(imagePath);
+                if (file.exists()) {
+                    return ImageIO.read(file);
+                }
+            } catch (IOException e) {
+                System.err.println("Failed to load image: " + imagePath + " - " + e.getMessage());
+            }
+            return null;
+        }
     }
 
     // Song class for easy song management
@@ -509,9 +682,20 @@ public class RhythmGame extends JFrame {
         }
         
         public String getMapFilePath() {
-            String fileName = new File(filePath).getName();
-            String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-            return GameAssets.MAPS_FOLDER + baseName + ".map";
+            try {
+                String fileName = new File(filePath).getName();
+                String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+                return GameAssets.MAPS_FOLDER + baseName + ".map";
+            } catch (Exception e) {
+                // Fallback if file name parsing fails
+                return GameAssets.MAPS_FOLDER + "default.map";
+            }
+        }
+        
+        public boolean hasMapFile() {
+            String mapPath = getMapFilePath();
+            File mapFile = new File(mapPath);
+            return mapFile.exists() && mapFile.canRead();
         }
     }
     
@@ -553,55 +737,70 @@ public class RhythmGame extends JFrame {
         }
         
         public static SongMap loadFromFile(String mapFilePath) {
-            SongMap map = null;
-            File file = new File(mapFilePath);
-            
-            if (!file.exists()) {
+            if (mapFilePath == null || mapFilePath.trim().isEmpty()) {
                 return null;
             }
+            
+            File file = new File(mapFilePath);
+            if (!file.exists() || !file.canRead()) {
+                return null;
+            }
+            
+            SongMap map = new SongMap(""); // Create with empty path, will be set later
             
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("#") || line.trim().isEmpty()) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#")) {
                         continue; // Skip comments and empty lines
                     }
                     
-                    if (line.startsWith("bpm=")) {
-                        if (map == null) {
-                            // Extract song file path from map file path
-                            String mapFileName = new File(mapFilePath).getName();
-                            String songFileName = mapFileName.substring(0, mapFileName.lastIndexOf('.')) + ".mp3";
-                            map = new SongMap(GameAssets.SONGS_FOLDER + songFileName);
-                        }
-                        map.bpm = Double.parseDouble(line.substring(4));
-                    } else if (line.startsWith("offset=")) {
-                        if (map == null) {
-                            String mapFileName = new File(mapFilePath).getName();
-                            String songFileName = mapFileName.substring(0, mapFileName.lastIndexOf('.')) + ".mp3";
-                            map = new SongMap(GameAssets.SONGS_FOLDER + songFileName);
-                        }
-                        map.offset = Double.parseDouble(line.substring(7));
-                    } else {
-                        // Parse note data
-                        String[] parts = line.split("\\|");
-                        if (parts.length == 2) {
-                            if (map == null) {
-                                String mapFileName = new File(mapFilePath).getName();
-                                String songFileName = mapFileName.substring(0, mapFileName.lastIndexOf('.')) + ".mp3";
-                                map = new SongMap(GameAssets.SONGS_FOLDER + songFileName);
+                    try {
+                        if (line.startsWith("bpm=")) {
+                            String value = line.substring(4).trim();
+                            if (!value.isEmpty()) {
+                                map.bpm = Double.parseDouble(value);
                             }
-                            double time = Double.parseDouble(parts[0]);
-                            int lane = Integer.parseInt(parts[1]);
-                            map.addNote(time, lane);
+                        } else if (line.startsWith("offset=")) {
+                            String value = line.substring(7).trim();
+                            if (!value.isEmpty()) {
+                                map.offset = Double.parseDouble(value);
+                            }
+                        } else if (line.contains("|")) {
+                            // Parse note data (format: time|lane)
+                            String[] parts = line.split("\\|");
+                            if (parts.length >= 2) {
+                                try {
+                                    double time = Double.parseDouble(parts[0].trim());
+                                    int lane = Integer.parseInt(parts[1].trim());
+                                    if (lane >= 0 && lane <= 3) {
+                                        map.addNote(time, lane);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    // Skip invalid note data
+                                    continue;
+                                }
+                            }
                         }
+                    } catch (Exception e) {
+                        // Skip malformed lines and continue
+                        continue;
                     }
                 }
+                
+                // If we successfully loaded some data, return the map
+                if (map.notes.size() > 0) {
+                    return map;
+                }
+                
             } catch (IOException e) {
-                System.err.println("Failed to load map file: " + e.getMessage());
+                // File reading failed
+                return null;
             }
             
-            return map;
+            // No valid data found
+            return null;
         }
         
         // Auto-generate map from audio analysis (simplified beat detection)
@@ -693,16 +892,14 @@ public class RhythmGame extends JFrame {
         mainPanel.setLayout(cardLayout);
         
         menuPanel = new MenuPanel();
+        songSelectionPanel = new SongSelectionPanel();
         gamePanel = new GamePanel();
         settingsPanel = new SettingsPanel();
-        songSelectionPanel = new SongSelectionPanel();
-        creditsPanel = new CreditsPanel();
         
         mainPanel.add(menuPanel, "Menu");
+        mainPanel.add(songSelectionPanel, "SongSelection");
         mainPanel.add(gamePanel, "Game");
         mainPanel.add(settingsPanel, "Settings");
-        mainPanel.add(songSelectionPanel, "SongSelection");
-        mainPanel.add(creditsPanel, "Credits");
         
         add(mainPanel);
         
@@ -710,27 +907,63 @@ public class RhythmGame extends JFrame {
     }
     
     public void showSettings() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> showSettings());
+            return;
+        }
         cardLayout.show(mainPanel, "Settings");
         // Request focus for keybind input
-        settingsPanel.requestFocusInWindow();
+        if (settingsPanel != null) {
+            settingsPanel.requestFocusInWindow();
+        }
     }
 
     public void showSongSelection() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> showSongSelection());
+            return;
+        }
         cardLayout.show(mainPanel, "SongSelection");
     }
 
-    public void showCredits() {
-        cardLayout.show(mainPanel, "Credits");
+    public void showCreditsDialog() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> showCreditsDialog());
+            return;
+        }
+        // Show credits in-game instead of popup
+        if (gamePanel != null) {
+            // Switch to game panel first, then show credits
+            cardLayout.show(mainPanel, "Game");
+            gamePanel.showCreditsInGame();
+        }
     }
 
     public void backToMenu() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> backToMenu());
+            return;
+        }
         cardLayout.show(mainPanel, "Menu");
     }
 
     public void startGameWithSong(Song song) {
-        gamePanel.startGameWithSong(song);
-        cardLayout.show(mainPanel, "Game");
-        gamePanel.requestFocus();
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> startGameWithSong(song));
+            return;
+        }
+        
+        try {
+            gamePanel.startGameWithSong(song);
+            cardLayout.show(mainPanel, "Game");
+            if (gamePanel != null) {
+                gamePanel.requestFocus();
+            }
+        } catch (Exception e) {
+            System.err.println("Error starting game: " + e.getMessage());
+            e.printStackTrace();
+            backToMenu();
+        }
     }
 
     public int[] getKeybinds() {
@@ -750,7 +983,16 @@ public class RhythmGame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new RhythmGame());
+        // Ensure the entire application runs on the EDT
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new RhythmGame();
+            } catch (Exception e) {
+                System.err.println("Fatal error starting application: " + e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            }
+        });
     }
 
     class MenuPanel extends JPanel {
@@ -806,9 +1048,9 @@ public class RhythmGame extends JFrame {
             gbc.gridy = 1;
             centerPanel.add(settingsButton, gbc);
 
-            // Create credits button with customizable color
-            JButton creditsButton = createModernButton("🎵 Credits", GameAssets.MAIN_BUTTON_COLOR, GameAssets.MAIN_BUTTON_HOVER_COLOR);
-            creditsButton.addActionListener(e -> ((RhythmGame) SwingUtilities.getWindowAncestor(this)).showCredits());
+            // Create credits button with simple text dialog
+            JButton creditsButton = createModernButton("Credits", GameAssets.MAIN_BUTTON_COLOR, GameAssets.MAIN_BUTTON_HOVER_COLOR);
+            creditsButton.addActionListener(e -> showCreditsDialog());
             creditsButton.setPreferredSize(GameAssets.MAIN_BUTTON_SIZE);
             gbc.gridy = 2;
             centerPanel.add(creditsButton, gbc);
@@ -915,7 +1157,7 @@ public class RhythmGame extends JFrame {
             titlePanel.setLayout(new BorderLayout());
             
             // Add title text
-            JLabel titleLabel = new JLabel("🎵 Select Song", SwingConstants.CENTER);
+            JLabel titleLabel = new JLabel("Select Song", SwingConstants.CENTER);
             titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
             titleLabel.setForeground(Color.WHITE);
             titlePanel.add(titleLabel, BorderLayout.CENTER);
@@ -925,7 +1167,7 @@ public class RhythmGame extends JFrame {
             topButtonPanel.setBackground(new Color(0, 0, 0, 0));
             topButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
             
-            JButton backButton = createModernButton("🔙 Back to Main", new Color(30, 30, 30), new Color(60, 60, 60));
+            JButton backButton = createModernButton("Back to Main", new Color(30, 30, 30), new Color(60, 60, 60));
             backButton.addActionListener(e -> backToMenu());
             topButtonPanel.add(backButton);
             titlePanel.add(topButtonPanel, BorderLayout.NORTH);
@@ -959,7 +1201,7 @@ public class RhythmGame extends JFrame {
             buttonPanel.setBackground(GameAssets.BACKGROUND_COLOR);
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 30, 0));
             
-            playButton = createModernButton("🎮 Play Song", GameAssets.PRIMARY_COLOR, GameAssets.ACCENT_COLOR);
+            playButton = createModernButton("Play Song", GameAssets.PRIMARY_COLOR, GameAssets.ACCENT_COLOR);
             playButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
             playButton.setPreferredSize(new Dimension(300, 60));
             playButton.addActionListener(e -> {
@@ -1061,48 +1303,55 @@ public class RhythmGame extends JFrame {
         }
         
         private JButton createNavigationButton(String text, int direction) {
-            JButton button = new JButton(text);
-            button.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            button.setPreferredSize(new Dimension(50, 50));
-            button.setBackground(GameAssets.PRIMARY_COLOR);
-            button.setForeground(Color.WHITE);
-            button.setFocusPainted(false);
-            button.setBorderPainted(false);
-            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            button.setMargin(new Insets(0, 0, 0, 0));
-            
-            // Make perfect square with rounded corners
-            button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-                public void installUI(javax.swing.JComponent c) {
-                    super.installUI(c);
-                    button.setOpaque(false);
-                }
-                
-                public void paint(java.awt.Graphics g, javax.swing.JComponent c) {
+            JButton button = new JButton(text) {
+                @Override
+                protected void paintComponent(Graphics g) {
                     Graphics2D g2d = (Graphics2D) g;
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     
-                    if (button.getModel().isRollover()) {
+                    // Draw background
+                    if (getModel().isRollover()) {
                         g2d.setColor(GameAssets.ACCENT_COLOR);
-                    } else if (button.getModel().isPressed()) {
+                    } else if (getModel().isPressed()) {
                         g2d.setColor(GameAssets.SECONDARY_COLOR);
                     } else {
                         g2d.setColor(GameAssets.PRIMARY_COLOR);
                     }
                     
-                    // Draw perfect square with rounded corners
-                    g2d.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 8, 8);
+                    // Draw smaller circle button
+                    int size = Math.min(getWidth(), getHeight());
+                    int x = (getWidth() - size) / 2;
+                    int y = (getHeight() - size) / 2;
+                    g2d.fillOval(x, y, size, size);
                     
-                    // Draw text centered
+                    // Draw orange border
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.drawOval(x, y, size, size);
+                    
+                    // Draw arrow text
                     g2d.setColor(Color.WHITE);
-                    g2d.setFont(button.getFont());
+                    g2d.setFont(new Font("Segoe UI", Font.BOLD, 14));
                     FontMetrics fm = g2d.getFontMetrics();
-                    String text = button.getText();
-                    int x = (button.getWidth() - fm.stringWidth(text)) / 2;
-                    int y = (button.getHeight() + fm.getAscent()) / 2;
-                    g2d.drawString(text, x, y);
+                    int textX = (getWidth() - fm.stringWidth(text)) / 2;
+                    int textY = (getHeight() + fm.getAscent()) / 2;
+                    g2d.drawString(text, textX, textY);
                 }
-            });
+                
+                @Override
+                public void setContentAreaFilled(boolean b) {}
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            
+            button.setPreferredSize(new Dimension(40, 40));
+            button.setFocusPainted(false);
+            button.setBorderPainted(false);
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            button.setMargin(new Insets(0, 0, 0, 0));
             
             return button;
         }
@@ -1157,10 +1406,10 @@ public class RhythmGame extends JFrame {
         private JPanel createSongCard(boolean isCurrent) {
             JPanel card = new JPanel(new BorderLayout());
             
-            // Size based on whether this is current or adjacent song
-            int imageSize = isCurrent ? 300 : 200;
-            int cardWidth = isCurrent ? 350 : 250;
-            int cardHeight = isCurrent ? 420 : 300;
+            // Make songs bigger to fit the screen
+            int imageSize = isCurrent ? 400 : 280;
+            int cardWidth = isCurrent ? 450 : 320;
+            int cardHeight = isCurrent ? 520 : 380;
             
             card.setPreferredSize(new Dimension(cardWidth, cardHeight));
             card.setMaximumSize(new Dimension(cardWidth, cardHeight));
@@ -1175,7 +1424,7 @@ public class RhythmGame extends JFrame {
             }
             
             // Create image panel with centered content
-            JPanel imagePanel = new JPanel(new GridBagLayout()) {
+            JPanel imagePanel = new JPanel(new BorderLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
@@ -1185,7 +1434,7 @@ public class RhythmGame extends JFrame {
                     // Draw shadow for floating effect
                     if (isCurrent) {
                         g2d.setColor(new Color(0, 0, 0, 100));
-                        g2d.fillRoundRect(5, 5, imageSize, imageSize, 15, 15);
+                        g2d.fillRoundRect(5, 5, getWidth(), getHeight(), 15, 15);
                     }
                     
                     // Draw background with hover effect
@@ -1198,7 +1447,7 @@ public class RhythmGame extends JFrame {
                         bgColor = new Color(40, 40, 55, 180);
                     }
                     g2d.setColor(bgColor);
-                    g2d.fillRoundRect(0, 0, imageSize, imageSize, 15, 15);
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                     
                     // Draw border with hover effect
                     Color borderColor = (isCurrent && isCurrentCardHovered) ? 
@@ -1206,16 +1455,23 @@ public class RhythmGame extends JFrame {
                         (isCurrent ? GameAssets.ACCENT_COLOR : new Color(100, 100, 120, 150));
                     g2d.setColor(borderColor);
                     g2d.setStroke(new BasicStroke(isCurrent ? 3 : 2));
-                    g2d.drawRoundRect(0, 0, imageSize, imageSize, 15, 15);
+                    g2d.drawRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                     
-                    // Draw music note icon
-                    g2d.setColor(isCurrent ? Color.WHITE : new Color(200, 200, 200, 200));
-                    g2d.setFont(new Font("Segoe UI", Font.BOLD, isCurrent ? 48 : 32));
-                    FontMetrics fm = g2d.getFontMetrics();
-                    String note = "♪";
-                    int x = (imageSize - fm.stringWidth(note)) / 2;
-                    int y = (imageSize + fm.getAscent()) / 2;
-                    g2d.drawString(note, x, y);
+                    // Draw song image or music note icon
+                    BufferedImage songImage = (BufferedImage) getClientProperty("songImage");
+                    if (songImage != null) {
+                        // Fill the entire panel area with the image
+                        g2d.drawImage(songImage, 0, 0, getWidth(), getHeight(), null);
+                    } else {
+                        // Draw music note icon as fallback
+                        g2d.setColor(isCurrent ? Color.WHITE : new Color(200, 200, 200, 200));
+                        g2d.setFont(new Font("Segoe UI", Font.BOLD, isCurrent ? 60 : 40));
+                        FontMetrics fm = g2d.getFontMetrics();
+                        String note = "♪";
+                        int x = (getWidth() - fm.stringWidth(note)) / 2;
+                        int y = (getHeight() + fm.getAscent()) / 2;
+                        g2d.drawString(note, x, y);
+                    }
                 }
                 
                 @Override
@@ -1226,27 +1482,73 @@ public class RhythmGame extends JFrame {
             
             imagePanel.setPreferredSize(new Dimension(imageSize, imageSize));
             
-            // Create title and difficulty panel
-            JPanel infoPanel = new JPanel(new GridLayout(2, 1, 5, 5));
-            infoPanel.setBackground(new Color(0, 0, 0, 0));
-            infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-            
-            // Title label
-            JLabel titleLabel = new JLabel("", SwingConstants.CENTER);
-            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, isCurrent ? 16 : 12));
-            titleLabel.setForeground(isCurrent ? Color.WHITE : new Color(200, 200, 200, 200));
-            
-            // Difficulty label
-            JLabel difficultyLabel = new JLabel("", SwingConstants.CENTER);
-            difficultyLabel.setFont(new Font("Segoe UI", Font.PLAIN, isCurrent ? 14 : 10));
-            difficultyLabel.setForeground(isCurrent ? new Color(255, 200, 100) : new Color(180, 180, 100, 150));
-            
-            infoPanel.add(titleLabel);
-            infoPanel.add(difficultyLabel);
-            
-            // Add components
+            // Add image panel to card
             card.add(imagePanel, BorderLayout.CENTER);
-            card.add(infoPanel, BorderLayout.SOUTH);
+            
+            // Create completely transparent overlay for title and difficulty
+            JPanel overlayPanel = new JPanel(new BorderLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    // Don't paint any background - completely transparent
+                    super.paintComponent(g);
+                }
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            overlayPanel.setOpaque(false);
+            overlayPanel.setBackground(new Color(0, 0, 0, 0));
+            
+            // Create a semi-transparent background panel for text readability
+            JPanel textBgPanel = new JPanel(new BorderLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    // Draw semi-transparent background only for current song
+                    if (isCurrent) {
+                        g2d.setColor(new Color(0, 0, 0, 120));
+                        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                    }
+                }
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            textBgPanel.setOpaque(false);
+            textBgPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+            
+            // Title label - completely reset
+            JLabel titleLabel = new JLabel("", SwingConstants.CENTER);
+            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, isCurrent ? 22 : 16));
+            titleLabel.setForeground(Color.WHITE);
+            titleLabel.setOpaque(false);
+            titleLabel.setText(""); // Force clear
+            
+            // Difficulty label - completely reset
+            JLabel difficultyLabel = new JLabel("", SwingConstants.CENTER);
+            difficultyLabel.setFont(new Font("Segoe UI", Font.PLAIN, isCurrent ? 16 : 12));
+            difficultyLabel.setForeground(new Color(255, 200, 100));
+            difficultyLabel.setOpaque(false);
+            difficultyLabel.setText(""); // Force clear
+            
+            textBgPanel.add(titleLabel, BorderLayout.CENTER);
+            textBgPanel.add(difficultyLabel, BorderLayout.SOUTH);
+            
+            overlayPanel.add(textBgPanel, BorderLayout.SOUTH);
+            
+            // Add overlay on top of image
+            card.add(overlayPanel, BorderLayout.SOUTH);
+            
+            // Store labels and image panel in client properties
+            card.putClientProperty("titleLabel", titleLabel);
+            card.putClientProperty("difficultyLabel", difficultyLabel);
+            card.putClientProperty("imagePanel", imagePanel);
             
             // Add hover effect for current song
             if (isCurrent) {
@@ -1347,15 +1649,34 @@ public class RhythmGame extends JFrame {
                         if ("prev".equals(cardType) && prevSong != null) {
                             updateCardTitle(card, prevSong.title, false);
                             updateCardDifficulty(card, prevSong.difficulty, false);
+                            updateCardImage(card, prevSong);
                         } else if ("current".equals(cardType) && currentSong != null) {
                             updateCardTitle(card, currentSong.title, true);
                             updateCardDifficulty(card, currentSong.difficulty, true);
+                            updateCardImage(card, currentSong);
                         } else if ("next".equals(cardType) && nextSong != null) {
                             updateCardTitle(card, nextSong.title, false);
                             updateCardDifficulty(card, nextSong.difficulty, false);
+                            updateCardImage(card, nextSong);
                         }
                     }
                 }
+            }
+        }
+        
+        private void updateCardImage(JPanel card, Song song) {
+            // Find the image panel in the card using client properties
+            JPanel imagePanel = (JPanel) card.getClientProperty("imagePanel");
+            
+            if (imagePanel != null) {
+                // Clear previous image completely
+                imagePanel.putClientProperty("songImage", null);
+                imagePanel.repaint();
+                
+                // Load and set new image
+                BufferedImage songImage = song.loadImage();
+                imagePanel.putClientProperty("songImage", songImage);
+                imagePanel.repaint();
             }
         }
         
@@ -1364,10 +1685,25 @@ public class RhythmGame extends JFrame {
             JLabel titleLabel = (JLabel) card.getClientProperty("titleLabel");
             
             if (titleLabel != null) {
-                // Clear previous text and set new title
+                // Complete reset of label
+                titleLabel.setText("");
+                titleLabel.setFont(new Font("Segoe UI", Font.BOLD, isCurrent ? 22 : 16));
+                titleLabel.setForeground(Color.WHITE);
+                titleLabel.setOpaque(false);
+                
+                // Force complete repaint
+                titleLabel.revalidate();
+                titleLabel.repaint();
+                
+                // Set new title
                 titleLabel.setText(title);
                 titleLabel.revalidate();
                 titleLabel.repaint();
+                
+                // Force parent panel repaint
+                if (titleLabel.getParent() != null) {
+                    titleLabel.getParent().repaint();
+                }
             }
         }
         
@@ -1376,8 +1712,26 @@ public class RhythmGame extends JFrame {
             JLabel difficultyLabel = (JLabel) card.getClientProperty("difficultyLabel");
             
             if (difficultyLabel != null) {
+                // Complete reset of label
+                difficultyLabel.setText("");
+                difficultyLabel.setFont(new Font("Segoe UI", Font.PLAIN, isCurrent ? 16 : 12));
+                difficultyLabel.setForeground(new Color(255, 200, 100));
+                difficultyLabel.setOpaque(false);
+                
+                // Force complete repaint
+                difficultyLabel.revalidate();
+                difficultyLabel.repaint();
+                
+                // Set new difficulty
                 String difficultyText = getDifficultyStars(difficulty);
                 difficultyLabel.setText(difficultyText);
+                difficultyLabel.revalidate();
+                difficultyLabel.repaint();
+                
+                // Force parent panel repaint
+                if (difficultyLabel.getParent() != null) {
+                    difficultyLabel.getParent().repaint();
+                }
             }
         }
         
@@ -1385,7 +1739,7 @@ public class RhythmGame extends JFrame {
             StringBuilder stars = new StringBuilder();
             for (int i = 0; i < 6; i++) {
                 if (i < difficulty) {
-                    stars.append("⭐");
+                    stars.append("★");
                 } else {
                     stars.append("☆");
                 }
@@ -1410,235 +1764,6 @@ public class RhythmGame extends JFrame {
                     g2d.fill(roundedRect);
                     
                     // Draw cyan border for ZZZ style
-                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
-                    g2d.setStroke(new BasicStroke(2));
-                    g2d.draw(roundedRect);
-                    
-                    super.paintComponent(g);
-                }
-                
-                @Override
-                public void setContentAreaFilled(boolean b) {}
-                
-                @Override
-                public boolean isOpaque() {
-                    return false;
-                }
-            };
-            
-            button.setFont(new Font("Segoe UI", Font.BOLD, 18));
-            button.setForeground(GameAssets.TEXT_COLOR);
-            button.setFocusPainted(false);
-            button.setBorderPainted(false);
-            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            
-            return button;
-        }
-    }
-
-    class CreditsPanel extends JPanel {
-        private JTextField[] songCreditFields;
-        private JTextField yourNameField;
-        private JButton saveButton;
-        private JButton backButton;
-        
-        public CreditsPanel() {
-            setLayout(new BorderLayout());
-            setBackground(GameAssets.BACKGROUND_COLOR);
-            
-            // Create title panel
-            JPanel titlePanel = new JPanel() {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    Graphics2D g2d = (Graphics2D) g;
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    
-                    GradientPaint titleGradient = new GradientPaint(0, 0, GameAssets.PRIMARY_COLOR, 0, getHeight(), GameAssets.SECONDARY_COLOR);
-                    g2d.setPaint(titleGradient);
-                    g2d.fillRect(0, 0, getWidth(), getHeight());
-                    
-                    super.paintComponent(g);
-                }
-                
-                @Override
-                public boolean isOpaque() {
-                    return false;
-                }
-            };
-            titlePanel.setPreferredSize(new Dimension(getWidth(), 120));
-            titlePanel.setLayout(new BorderLayout());
-            
-            JLabel titleLabel = new JLabel("🎵 Credits Configuration", SwingConstants.CENTER);
-            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
-            titleLabel.setForeground(Color.WHITE);
-            titlePanel.add(titleLabel, BorderLayout.CENTER);
-            
-            // Add back button
-            JPanel topButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            topButtonPanel.setBackground(new Color(0, 0, 0, 0));
-            topButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
-            
-            backButton = createModernButton("🔙 Back to Main", new Color(30, 30, 30), new Color(60, 60, 60));
-            backButton.addActionListener(e -> backToMenu());
-            topButtonPanel.add(backButton);
-            titlePanel.add(topButtonPanel, BorderLayout.NORTH);
-            
-            add(titlePanel, BorderLayout.NORTH);
-            
-            // Create main content panel
-            JPanel contentPanel = new JPanel(new BorderLayout());
-            contentPanel.setBackground(GameAssets.BACKGROUND_COLOR);
-            contentPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
-            
-            // Create scrollable area for credits
-            JPanel creditsPanel = new JPanel();
-            creditsPanel.setBackground(GameAssets.BACKGROUND_COLOR);
-            creditsPanel.setLayout(new BoxLayout(creditsPanel, BoxLayout.Y_AXIS));
-            
-            // Your name section
-            JPanel yourNamePanel = createSectionPanel("Your Name");
-            yourNameField = new JTextField("Your Name Here", 30);
-            yourNameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-            yourNameField.setBackground(GameAssets.SURFACE_COLOR);
-            yourNameField.setForeground(GameAssets.TEXT_COLOR);
-            yourNameField.setCaretColor(GameAssets.TEXT_COLOR);
-            yourNameField.setBorder(BorderFactory.createLineBorder(GameAssets.ACCENT_COLOR, 2));
-            yourNamePanel.add(yourNameField);
-            creditsPanel.add(yourNamePanel);
-            creditsPanel.add(Box.createVerticalStrut(20));
-            
-            // Song credits section
-            JLabel songCreditsLabel = new JLabel("Song Credits:");
-            songCreditsLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-            songCreditsLabel.setForeground(GameAssets.TEXT_COLOR);
-            songCreditsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            creditsPanel.add(songCreditsLabel);
-            creditsPanel.add(Box.createVerticalStrut(10));
-            
-            // Create credit fields for all 12 placeholder songs
-            songCreditFields = new JTextField[12];
-            String[] songNames = {
-                "Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4",
-                "Placeholder 5", "Placeholder 6", "Placeholder 7", "Placeholder 8",
-                "Placeholder 9", "Placeholder 10", "Placeholder 11", "Placeholder 12"
-            };
-            
-            for (int i = 0; i < 12; i++) {
-                JPanel songPanel = createSectionPanel(songNames[i]);
-                songCreditFields[i] = new JTextField("Original Artist / License Info", 30);
-                songCreditFields[i].setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                songCreditFields[i].setBackground(GameAssets.SURFACE_COLOR);
-                songCreditFields[i].setForeground(GameAssets.TEXT_COLOR);
-                songCreditFields[i].setCaretColor(GameAssets.TEXT_COLOR);
-                songCreditFields[i].setBorder(BorderFactory.createLineBorder(GameAssets.PRIMARY_COLOR, 1));
-                songPanel.add(songCreditFields[i]);
-                creditsPanel.add(songPanel);
-                creditsPanel.add(Box.createVerticalStrut(10));
-            }
-            
-            // Load existing credits
-            loadCredits();
-            
-            JScrollPane scrollPane = new JScrollPane(creditsPanel);
-            scrollPane.setBackground(GameAssets.BACKGROUND_COLOR);
-            scrollPane.setBorder(BorderFactory.createEmptyBorder());
-            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-            contentPanel.add(scrollPane, BorderLayout.CENTER);
-            
-            // Create button panel
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setBackground(GameAssets.BACKGROUND_COLOR);
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
-            
-            saveButton = createModernButton("💾 Save Credits", GameAssets.SUCCESS_COLOR, new Color(100, 250, 150));
-            saveButton.addActionListener(e -> saveCredits());
-            buttonPanel.add(saveButton);
-            
-            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
-            add(contentPanel, BorderLayout.CENTER);
-        }
-        
-        private JPanel createSectionPanel(String title) {
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setBackground(GameAssets.BACKGROUND_COLOR);
-            panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-            
-            JLabel label = new JLabel(title + ":");
-            label.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            label.setForeground(GameAssets.TEXT_COLOR);
-            label.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 10));
-            
-            panel.add(label, BorderLayout.NORTH);
-            return panel;
-        }
-        
-        private void loadCredits() {
-            File creditsFile = new File("config/credits.txt");
-            if (creditsFile.exists()) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(creditsFile))) {
-                    String line;
-                    int lineIndex = 0;
-                    
-                    // Read your name
-                    if ((line = reader.readLine()) != null) {
-                        yourNameField.setText(line);
-                    }
-                    
-                    // Read song credits
-                    while ((line = reader.readLine()) != null && lineIndex < 12) {
-                        songCreditFields[lineIndex].setText(line);
-                        lineIndex++;
-                    }
-                } catch (IOException e) {
-                    System.err.println("Error loading credits: " + e.getMessage());
-                }
-            }
-        }
-        
-        private void saveCredits() {
-            File creditsFile = new File("config/credits.txt");
-            creditsFile.getParentFile().mkdirs();
-            
-            try (PrintWriter writer = new PrintWriter(new FileWriter(creditsFile))) {
-                // Save your name
-                writer.println(yourNameField.getText());
-                
-                // Save song credits
-                for (JTextField field : songCreditFields) {
-                    writer.println(field.getText());
-                }
-                
-                // Show success message
-                JOptionPane.showMessageDialog(this, 
-                    "Credits saved successfully!", 
-                    "Success", 
-                    JOptionPane.INFORMATION_MESSAGE);
-                    
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, 
-                    "Error saving credits: " + e.getMessage(), 
-                    "Error", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        }
-        
-        private JButton createModernButton(String text, Color bgColor, Color hoverColor) {
-            JButton button = new JButton(text) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2d = (Graphics2D) g;
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    
-                    if (getModel().isRollover()) {
-                        g2d.setColor(hoverColor);
-                    } else {
-                        g2d.setColor(bgColor);
-                    }
-                    
-                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15);
-                    g2d.fill(roundedRect);
-                    
                     g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
                     g2d.setStroke(new BasicStroke(2));
                     g2d.draw(roundedRect);
@@ -1972,11 +2097,14 @@ public class RhythmGame extends JFrame {
         private long lastSpawnTime;
         private int score;
         private int combo;
+        private int maxCombo; // Track maximum combo achieved
         private List<Particle> particles;
         private List<TimingRating> timingRatings;
         private boolean[] laneGlowActive;
         private long[] laneGlowStartTime;
         private boolean isPaused = false;
+        private boolean showResults = false; // New state for showing results in-game
+        private boolean showCredits = false; // New state for showing credits in-game
         private JPanel pauseOverlay;
         private JButton resumeButton;
         private JButton songSelectionButton;
@@ -2042,6 +2170,96 @@ public class RhythmGame extends JFrame {
             
             setupPauseOverlay();
             resetGame();
+            
+            // Add mouse listener for results buttons
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (showResults) {
+                        handleResultsClick(e.getX(), e.getY());
+                    } else if (showCredits) {
+                        handleCreditsClick(e.getX(), e.getY());
+                    }
+                }
+            });
+            
+            // Add mouse motion listener for button hover effects
+            addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    if (showResults || showCredits) {
+                        repaint(); // Repaint to update hover effects
+                    }
+                }
+            });
+        }
+        
+        private void handleResultsClick(int x, int y) {
+            // Calculate button positions for new results screen layout
+            int panelWidth = 550;
+            int panelHeight = 450;
+            int panelX = (WIDTH - panelWidth) / 2;
+            int panelY = (HEIGHT - panelHeight) / 2;
+            
+            int buttonY = panelY + panelHeight - 60;
+            int buttonWidth = 140;
+            int buttonHeight = 40;
+            int buttonSpacing = 20;
+            
+            // Calculate total width and center buttons
+            int totalButtonWidth = 3 * buttonWidth + 2 * buttonSpacing;
+            int startX = panelX + (panelWidth - totalButtonWidth) / 2;
+            
+            // Check Retry button
+            if (x >= startX && x <= startX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
+                showResults = false;
+                startGameWithSong(currentSong);
+                return;
+            }
+            
+            // Check Song Selection button
+            int songSelectionX = startX + buttonWidth + buttonSpacing;
+            if (x >= songSelectionX && x <= songSelectionX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
+                showResults = false;
+                ((RhythmGame) SwingUtilities.getWindowAncestor(this)).showSongSelection();
+                return;
+            }
+            
+            // Check Main Menu button
+            int mainMenuX = startX + 2 * (buttonWidth + buttonSpacing);
+            if (x >= mainMenuX && x <= mainMenuX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
+                showResults = false;
+                ((RhythmGame) SwingUtilities.getWindowAncestor(this)).backToMenu();
+                return;
+            }
+        }
+        
+        public void showCreditsInGame() {
+            showCredits = true;
+            // Don't pause timer if we're just showing credits from menu (not during gameplay)
+            if (timer != null && timer.isRunning() && isPlayingWithMap && !songCompleted) {
+                timer.stop(); // Only pause if we're actually playing
+            }
+        }
+        
+        private void handleCreditsClick(int x, int y) {
+            // Calculate back button position for updated credits layout
+            int panelWidth = 650;
+            int panelHeight = 550;
+            int panelX = (WIDTH - panelWidth) / 2;
+            int panelY = (HEIGHT - panelHeight) / 2;
+            
+            int buttonWidth = 120;
+            int buttonHeight = 40;
+            int buttonX = panelX + (panelWidth - buttonWidth) / 2;
+            int buttonY = panelY + panelHeight - 60;
+            
+            // Check if back button was clicked
+            if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
+                showCredits = false;
+                // Return to main menu since credits were accessed from menu
+                ((RhythmGame) SwingUtilities.getWindowAncestor(this)).backToMenu();
+            }
         }
         
         private void updateDimensions() {
@@ -2292,6 +2510,9 @@ public class RhythmGame extends JFrame {
             drawFeverBar(g2d);
             
             // Always draw these elements (but they won't update when paused)
+            // Draw accuracy and timer in top right
+            drawAccuracyAndTimer(g2d);
+            
             // Draw hit zone with arrow shapes
             drawHitZone(g2d);
             
@@ -2302,7 +2523,19 @@ public class RhythmGame extends JFrame {
             timingRatings.forEach(rating -> rating.draw(g2d));
             
             // Draw notes
-            notes.forEach(note -> note.draw(g2d));
+            if (!showResults) {
+                notes.forEach(note -> note.draw(g2d));
+            }
+            
+            // Draw in-game results screen if active
+            if (showResults) {
+                drawInGameResults(g2d);
+            }
+            
+            // Draw in-game credits screen if active
+            if (showCredits) {
+                drawInGameCredits(g2d);
+            }
             
             // Draw pause overlay if paused
             if (isPaused) {
@@ -2377,6 +2610,397 @@ public class RhythmGame extends JFrame {
             }
         }
         
+        private void drawInGameResults(Graphics2D g2d) {
+            // Calculate rank
+            String rank = calculateRank();
+            
+            // Draw semi-transparent overlay
+            g2d.setColor(GameAssets.RESULTS_OVERLAY_COLOR);
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            // Draw custom background image if enabled
+            if (GameAssets.USE_RESULTS_BACKGROUND_IMAGE) {
+                BufferedImage bgImage = GameAssets.loadImage(GameAssets.RESULTS_BACKGROUND_IMAGE);
+                if (bgImage != null) {
+                    g2d.drawImage(bgImage, 0, 0, WIDTH, HEIGHT, null);
+                }
+            }
+            
+            // Draw results panel with customizable dimensions
+            int panelWidth = GameAssets.RESULTS_PANEL_WIDTH;
+            int panelHeight = GameAssets.RESULTS_PANEL_HEIGHT;
+            int panelX = (WIDTH - panelWidth) / 2;
+            int panelY = (HEIGHT - panelHeight) / 2;
+            
+            // Panel background with gradient effect or custom image
+            if (GameAssets.USE_RESULTS_PANEL_IMAGE) {
+                BufferedImage panelImage = GameAssets.loadImage(GameAssets.RESULTS_PANEL_IMAGE);
+                if (panelImage != null) {
+                    g2d.drawImage(panelImage, panelX, panelY, panelWidth, panelHeight, null);
+                } else {
+                    // Fallback to gradient
+                    GradientPaint panelGradient = new GradientPaint(panelX, panelY, GameAssets.RESULTS_PANEL_COLOR, panelX, panelY + panelHeight, GameAssets.RESULTS_PANEL_GRADIENT_END);
+                    g2d.setPaint(panelGradient);
+                    g2d.fillRoundRect(panelX, panelY, panelWidth, panelHeight, GameAssets.RESULTS_BORDER_RADIUS, GameAssets.RESULTS_BORDER_RADIUS);
+                    g2d.setPaint(null);
+                }
+            } else {
+                // Gradient background
+                GradientPaint panelGradient = new GradientPaint(panelX, panelY, GameAssets.RESULTS_PANEL_COLOR, panelX, panelY + panelHeight, GameAssets.RESULTS_PANEL_GRADIENT_END);
+                g2d.setPaint(panelGradient);
+                g2d.fillRoundRect(panelX, panelY, panelWidth, panelHeight, GameAssets.RESULTS_BORDER_RADIUS, GameAssets.RESULTS_BORDER_RADIUS);
+                g2d.setPaint(null);
+            }
+            
+            // Panel border with glow effect
+            g2d.setColor(GameAssets.RESULTS_BORDER_COLOR);
+            g2d.setStroke(new BasicStroke(GameAssets.RESULTS_BORDER_WIDTH));
+            g2d.drawRoundRect(panelX, panelY, panelWidth, panelHeight, GameAssets.RESULTS_BORDER_RADIUS, GameAssets.RESULTS_BORDER_RADIUS);
+            
+            // Inner border for depth
+            g2d.setStroke(new BasicStroke(GameAssets.RESULTS_INNER_BORDER_WIDTH));
+            g2d.setColor(GameAssets.RESULTS_INNER_BORDER_COLOR);
+            g2d.drawRoundRect(panelX + 5, panelY + 5, panelWidth - 10, panelHeight - 10, GameAssets.RESULTS_BORDER_RADIUS - 5, GameAssets.RESULTS_BORDER_RADIUS - 5);
+            
+            // Set up fonts with customization
+            Font titleFont = new Font(GameAssets.RESULTS_TITLE_FONT, Font.BOLD, GameAssets.RESULTS_TITLE_SIZE);
+            Font rankFont = new Font(GameAssets.RESULTS_RANK_FONT, Font.BOLD, GameAssets.RESULTS_RANK_SIZE);
+            Font labelFont = new Font(GameAssets.RESULTS_LABEL_FONT, Font.BOLD, GameAssets.RESULTS_LABEL_SIZE);
+            Font statFont = new Font(GameAssets.RESULTS_STATS_FONT, Font.BOLD, GameAssets.RESULTS_STATS_SIZE);
+            
+            // Song title at top
+            g2d.setFont(titleFont);
+            g2d.setColor(GameAssets.TEXT_COLOR);
+            FontMetrics titleMetrics = g2d.getFontMetrics();
+            String titleText = currentSong.title;
+            int titleWidth = titleMetrics.stringWidth(titleText);
+            g2d.drawString(titleText, panelX + (panelWidth - titleWidth) / 2, panelY + GameAssets.RESULTS_TITLE_Y_OFFSET);
+            
+            // Decorative line under title
+            g2d.setColor(GameAssets.RESULTS_BORDER_COLOR);
+            g2d.drawLine(panelX + GameAssets.RESULTS_SEPARATOR_MARGIN, panelY + GameAssets.RESULTS_TITLE_LINE_Y, panelX + panelWidth - GameAssets.RESULTS_SEPARATOR_MARGIN, panelY + GameAssets.RESULTS_TITLE_LINE_Y);
+            
+            // Main content area - Rank and Score side by side
+            int contentY = panelY + GameAssets.RESULTS_CONTENT_Y_OFFSET;
+            
+            // Rank on the left
+            g2d.setFont(rankFont);
+            g2d.setColor(getRankColor(rank));
+            String rankText = rank;
+            g2d.drawString(rankText, panelX + GameAssets.RESULTS_RANK_X_OFFSET, contentY + GameAssets.RESULTS_RANK_Y_OFFSET);
+            
+            // Score on the right
+            g2d.setFont(labelFont);
+            g2d.setColor(GameAssets.TEXT_COLOR);
+            String scoreText = "Score: " + score;
+            FontMetrics scoreMetrics = g2d.getFontMetrics();
+            int scoreWidth = scoreMetrics.stringWidth(scoreText);
+            g2d.drawString(scoreText, panelX + panelWidth - GameAssets.RESULTS_SCORE_RIGHT_MARGIN - scoreWidth, contentY + 30);
+            
+            // Max Combo below score
+            if (GameAssets.SHOW_RESULTS_MAX_COMBO) {
+                g2d.setFont(new Font(GameAssets.RESULTS_LABEL_FONT, Font.BOLD, 18));
+                g2d.setColor(GameAssets.ACCENT_COLOR);
+                String comboText = "Max Combo: " + maxCombo;
+                FontMetrics comboMetrics = g2d.getFontMetrics();
+                int comboWidth = comboMetrics.stringWidth(comboText);
+                g2d.drawString(comboText, panelX + panelWidth - GameAssets.RESULTS_SCORE_RIGHT_MARGIN - comboWidth, contentY + 60);
+            }
+            
+            // Statistics section at bottom
+            if (GameAssets.SHOW_RESULTS_DETAILED_STATS) {
+                int statsY = contentY + 120;
+                
+                // Stats background panel
+                g2d.setColor(new Color(30, 30, 40, GameAssets.RESULTS_STATS_PANEL_ALPHA));
+                g2d.fillRoundRect(panelX + 50, statsY - 25, panelWidth - 100, 80, GameAssets.RESULTS_STATS_PANEL_RADIUS, GameAssets.RESULTS_STATS_PANEL_RADIUS);
+                
+                // Perfect and Good on top row
+                g2d.setFont(statFont);
+                g2d.setColor(new Color(100, 255, 100));
+                g2d.drawString("Perfect: " + perfectCount, panelX + 70, statsY);
+                
+                g2d.setColor(new Color(100, 200, 255));
+                g2d.drawString("Good: " + goodCount, panelX + 280, statsY);
+                
+                // Okay and Miss on bottom row
+                g2d.setColor(new Color(255, 255, 100));
+                g2d.drawString("Okay: " + okayCount, panelX + 70, statsY + 35);
+                
+                g2d.setColor(new Color(255, 100, 100));
+                g2d.drawString("Miss: " + missCount, panelX + 280, statsY + 35);
+            }
+            
+            // Draw buttons
+            drawResultsButtons(g2d, panelX, panelY, panelWidth, panelHeight);
+        }
+        
+        private void drawResultsButtons(Graphics2D g2d, int panelX, int panelY, int panelWidth, int panelHeight) {
+            Font buttonFont = new Font("Segoe UI", Font.BOLD, 18);
+            g2d.setFont(buttonFont);
+            
+            int buttonY = panelY + panelHeight - GameAssets.RESULTS_BUTTON_BOTTOM_MARGIN;
+            int buttonWidth = GameAssets.RESULTS_BUTTON_WIDTH;
+            int buttonHeight = GameAssets.RESULTS_BUTTON_HEIGHT;
+            int buttonSpacing = GameAssets.RESULTS_BUTTON_SPACING;
+            
+            // Calculate total width and center buttons
+            int totalButtonWidth = 3 * buttonWidth + 2 * buttonSpacing;
+            int startX = panelX + (panelWidth - totalButtonWidth) / 2;
+            
+            // Retry button
+            drawButton(g2d, startX, buttonY, buttonWidth, buttonHeight, "Retry Song", GameAssets.SUCCESS_COLOR);
+            
+            // Song Selection button
+            drawButton(g2d, startX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight, "Song Selection", GameAssets.PRIMARY_COLOR);
+            
+            // Main Menu button
+            drawButton(g2d, startX + 2 * (buttonWidth + buttonSpacing), buttonY, buttonWidth, buttonHeight, "Main Menu", GameAssets.MAIN_BUTTON_COLOR);
+        }
+        
+        private void drawButton(Graphics2D g2d, int x, int y, int width, int height, String text, Color bgColor) {
+            // Check if mouse is hovering over button
+            Point mousePos = getMousePosition();
+            boolean isHovering = mousePos != null && 
+                               mousePos.x >= x && mousePos.x <= x + width &&
+                               mousePos.y >= y && mousePos.y <= y + height;
+            
+            // Draw button background
+            if (isHovering) {
+                g2d.setColor(bgColor.brighter());
+            } else {
+                g2d.setColor(bgColor);
+            }
+            g2d.fillRoundRect(x, y, width, height, 10, 10);
+            
+            // Draw button border
+            g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+            g2d.setStroke(new BasicStroke(2));
+            g2d.drawRoundRect(x, y, width, height, 10, 10);
+            
+            // Draw button text
+            g2d.setColor(Color.WHITE);
+            FontMetrics metrics = g2d.getFontMetrics();
+            int textWidth = metrics.stringWidth(text);
+            int textHeight = metrics.getHeight();
+            g2d.drawString(text, x + (width - textWidth) / 2, y + (height + textHeight) / 2 - 2);
+        }
+        
+        private void drawInGameCredits(Graphics2D g2d) {
+            // Draw semi-transparent overlay
+            g2d.setColor(GameAssets.CREDITS_OVERLAY_COLOR);
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            // Draw custom background image if enabled
+            if (GameAssets.USE_CREDITS_BACKGROUND_IMAGE) {
+                BufferedImage bgImage = GameAssets.loadImage(GameAssets.CREDITS_BACKGROUND_IMAGE);
+                if (bgImage != null) {
+                    g2d.drawImage(bgImage, 0, 0, WIDTH, HEIGHT, null);
+                }
+            }
+            
+            // Draw credits panel with customizable dimensions
+            int panelWidth = GameAssets.CREDITS_PANEL_WIDTH;
+            int panelHeight = GameAssets.CREDITS_PANEL_HEIGHT;
+            int panelX = (WIDTH - panelWidth) / 2;
+            int panelY = (HEIGHT - panelHeight) / 2;
+            
+            // Panel background or custom image
+            if (GameAssets.USE_CREDITS_PANEL_IMAGE) {
+                BufferedImage panelImage = GameAssets.loadImage(GameAssets.CREDITS_PANEL_IMAGE);
+                if (panelImage != null) {
+                    g2d.drawImage(panelImage, panelX, panelY, panelWidth, panelHeight, null);
+                } else {
+                    // Fallback to solid color
+                    g2d.setColor(GameAssets.CREDITS_PANEL_COLOR);
+                    g2d.fillRoundRect(panelX, panelY, panelWidth, panelHeight, GameAssets.CREDITS_BORDER_RADIUS, GameAssets.CREDITS_BORDER_RADIUS);
+                }
+            } else {
+                // Solid background
+                g2d.setColor(GameAssets.CREDITS_PANEL_COLOR);
+                g2d.fillRoundRect(panelX, panelY, panelWidth, panelHeight, GameAssets.CREDITS_BORDER_RADIUS, GameAssets.CREDITS_BORDER_RADIUS);
+            }
+            
+            // Panel border
+            g2d.setColor(GameAssets.CREDITS_BORDER_COLOR);
+            g2d.setStroke(new BasicStroke(GameAssets.CREDITS_BORDER_WIDTH));
+            g2d.drawRoundRect(panelX, panelY, panelWidth, panelHeight, GameAssets.CREDITS_BORDER_RADIUS, GameAssets.CREDITS_BORDER_RADIUS);
+            
+            // Set up fonts with customization
+            Font titleFont = new Font(GameAssets.CREDITS_TITLE_FONT, Font.BOLD, GameAssets.CREDITS_TITLE_SIZE);
+            Font sectionFont = new Font(GameAssets.CREDITS_SECTION_FONT, Font.BOLD, GameAssets.CREDITS_SECTION_SIZE);
+            Font textFont = new Font(GameAssets.CREDITS_TEXT_FONT, Font.PLAIN, GameAssets.CREDITS_TEXT_SIZE);
+            
+            // Title
+            g2d.setFont(titleFont);
+            g2d.setColor(GameAssets.TEXT_COLOR);
+            FontMetrics titleMetrics = g2d.getFontMetrics();
+            String titleText = GameAssets.CREDITS_GAME_TITLE;
+            int titleWidth = titleMetrics.stringWidth(titleText);
+            g2d.drawString(titleText, panelX + (panelWidth - titleWidth) / 2, panelY + GameAssets.CREDITS_TITLE_Y_OFFSET);
+            
+            // Separator
+            g2d.setColor(GameAssets.CREDITS_BORDER_COLOR);
+            g2d.drawLine(panelX + GameAssets.CREDITS_SEPARATOR_MARGIN, panelY + GameAssets.CREDITS_SEPARATOR_Y, panelX + panelWidth - GameAssets.CREDITS_SEPARATOR_MARGIN, panelY + GameAssets.CREDITS_SEPARATOR_Y);
+            
+            // Credits content with customizable spacing
+            int currentY = panelY + GameAssets.CREDITS_CONTENT_Y_OFFSET;
+            int lineHeight = GameAssets.CREDITS_LINE_HEIGHT;
+            int leftMargin = GameAssets.CREDITS_LEFT_MARGIN;
+            
+            // Game Development section
+            g2d.setFont(sectionFont);
+            g2d.setColor(GameAssets.PRIMARY_COLOR);
+            g2d.drawString(GameAssets.CREDITS_GAME_DEV_SECTION[0], panelX + leftMargin, currentY);
+            currentY += lineHeight;
+            
+            g2d.setFont(textFont);
+            g2d.setColor(GameAssets.TEXT_COLOR);
+            for (int i = 1; i < GameAssets.CREDITS_GAME_DEV_SECTION.length; i++) {
+                g2d.drawString(GameAssets.CREDITS_GAME_DEV_SECTION[i], panelX + leftMargin, currentY);
+                currentY += lineHeight;
+            }
+            currentY += GameAssets.CREDITS_SECTION_SPACING;
+            
+            // Music & Sounds section
+            g2d.setFont(sectionFont);
+            g2d.setColor(GameAssets.PRIMARY_COLOR);
+            g2d.drawString(GameAssets.CREDITS_MUSIC_SECTION[0], panelX + leftMargin, currentY);
+            currentY += lineHeight;
+            
+            g2d.setFont(textFont);
+            g2d.setColor(GameAssets.TEXT_COLOR);
+            for (int i = 1; i < GameAssets.CREDITS_MUSIC_SECTION.length; i++) {
+                g2d.drawString(GameAssets.CREDITS_MUSIC_SECTION[i], panelX + leftMargin, currentY);
+                currentY += lineHeight;
+            }
+            currentY += GameAssets.CREDITS_SECTION_SPACING;
+            
+            // Special Thanks section
+            g2d.setFont(sectionFont);
+            g2d.setColor(GameAssets.PRIMARY_COLOR);
+            g2d.drawString(GameAssets.CREDITS_THANKS_SECTION[0], panelX + leftMargin, currentY);
+            currentY += lineHeight;
+            
+            g2d.setFont(textFont);
+            g2d.setColor(GameAssets.TEXT_COLOR);
+            for (int i = 1; i < GameAssets.CREDITS_THANKS_SECTION.length; i++) {
+                g2d.drawString(GameAssets.CREDITS_THANKS_SECTION[i], panelX + leftMargin, currentY);
+                currentY += lineHeight;
+            }
+            currentY += GameAssets.CREDITS_SECTION_SPACING;
+            
+            // Version info
+            g2d.setFont(textFont);
+            g2d.setColor(GameAssets.ACCENT_COLOR);
+            g2d.drawString(GameAssets.CREDITS_VERSION, panelX + leftMargin, currentY);
+            currentY += lineHeight;
+            g2d.drawString(GameAssets.CREDITS_COPYRIGHT, panelX + leftMargin, currentY);
+            
+            // Back button
+            drawCreditsBackButton(g2d, panelX, panelY, panelWidth, panelHeight);
+        }
+        
+        private void drawCreditsBackButton(Graphics2D g2d, int panelX, int panelY, int panelWidth, int panelHeight) {
+            // Button properties with customization
+            int buttonWidth = GameAssets.CREDITS_BUTTON_WIDTH;
+            int buttonHeight = GameAssets.CREDITS_BUTTON_HEIGHT;
+            int buttonX = panelX + (panelWidth - buttonWidth) / 2;
+            int buttonY = panelY + panelHeight - GameAssets.CREDITS_BUTTON_BOTTOM_MARGIN;
+            
+            // Check if mouse is hovering over button
+            Point mousePos = getMousePosition();
+            boolean isHovering = mousePos != null && 
+                               mousePos.x >= buttonX && mousePos.x <= buttonX + buttonWidth &&
+                               mousePos.y >= buttonY && mousePos.y <= buttonY + buttonHeight;
+            
+            // Draw button background
+            if (isHovering) {
+                g2d.setColor(GameAssets.MAIN_BUTTON_HOVER_COLOR);
+            } else {
+                g2d.setColor(GameAssets.MAIN_BUTTON_COLOR);
+            }
+            g2d.fillRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 10, 10);
+            
+            // Draw button border
+            g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+            g2d.setStroke(new BasicStroke(2));
+            g2d.drawRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 10, 10);
+            
+            // Draw button text with customization
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            g2d.setColor(Color.WHITE);
+            FontMetrics metrics = g2d.getFontMetrics();
+            String buttonText = GameAssets.CREDITS_BACK_BUTTON_TEXT;
+            int textWidth = metrics.stringWidth(buttonText);
+            int textHeight = metrics.getHeight();
+            g2d.drawString(buttonText, buttonX + (buttonWidth - textWidth) / 2, buttonY + (buttonHeight + textHeight) / 2 - 2);
+        }
+
+        private void drawAccuracyAndTimer(Graphics2D g2d) {
+            // Calculate remaining time and accuracy
+            double remainingTime = 0.0;
+            double accuracy = 0.0;
+            
+            if (isPlayingWithMap && songStartTime > 0 && !songCompleted) {
+                double elapsedTime = (System.currentTimeMillis() - songStartTime) / 1000.0;
+                remainingTime = Math.max(0.0, songDuration - elapsedTime);
+                
+                int totalHits = perfectCount + goodCount + okayCount + missCount;
+                if (totalHits > 0) {
+                    accuracy = (double) (perfectCount * 100 + goodCount * 75 + okayCount * 50) / (totalHits * 100) * 100;
+                }
+            }
+            
+            // Set up font and colors
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Position for top right
+            int x = WIDTH - 200;
+            int y = 30;
+            
+            // Calculate panel height based on what's shown
+            int panelHeight = 70;
+            if (!GameAssets.SHOW_COUNTDOWN_TIMER) panelHeight -= 25;
+            if (!GameAssets.SHOW_ACCURACY) panelHeight -= 25;
+            
+            if (panelHeight > 0) {
+                // Draw semi-transparent background
+                g2d.setColor(new Color(0, 0, 0, 150));
+                g2d.fillRoundRect(x - 10, y - 5, 190, panelHeight, 10, 10);
+                
+                // Draw border
+                g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                g2d.setStroke(new BasicStroke(2));
+                g2d.drawRoundRect(x - 10, y - 5, 190, panelHeight, 10, 10);
+                
+                int currentY = y + 20;
+                
+                // Draw countdown timer if enabled
+                if (GameAssets.SHOW_COUNTDOWN_TIMER) {
+                    g2d.setColor(GameAssets.PRIMARY_COLOR);
+                    g2d.drawString(String.format(GameAssets.TIMER_FORMAT, remainingTime), x, currentY);
+                    currentY += 25;
+                }
+                
+                // Draw accuracy if enabled
+                if (GameAssets.SHOW_ACCURACY) {
+                    Color accuracyColor = getAccuracyColor(accuracy);
+                    g2d.setColor(accuracyColor);
+                    g2d.drawString("Accuracy: " + String.format("%.1f%%", accuracy), x, currentY);
+                }
+            }
+        }
+        
+        private Color getAccuracyColor(double accuracy) {
+            if (accuracy >= 95) return new Color(255, 215, 0); // Gold
+            if (accuracy >= 85) return new Color(192, 192, 192); // Silver
+            if (accuracy >= 70) return new Color(205, 127, 50); // Bronze
+            if (accuracy >= 50) return new Color(100, 150, 255); // Blue
+            return new Color(255, 100, 100); // Red
+        }
+
         private void drawHitZone(Graphics2D g2d) {
             // Hit zone glow effect
             GradientPaint hitZoneGradient = new GradientPaint(0, HIT_ZONE_Y - 10, new Color(255, 255, 255, 0), 0, HIT_ZONE_Y + 10, new Color(255, 255, 255, 50));
@@ -2387,7 +3011,7 @@ public class RhythmGame extends JFrame {
             for (int i = 0; i < NUM_LANES; i++) {
                 int x = LANE_POSITIONS[i] + LANE_WIDTH / 2;
                 g2d.setColor(GameAssets.NOTE_COLORS[i]);
-                drawArrow(g2d, x, HIT_ZONE_Y, GameAssets.ARROW_SIZE, i, true);
+                drawArrow(g2d, x, HIT_ZONE_Y, GameAssets.ARROW_SIZE, i, true, false);
             }
         }
         
@@ -2403,11 +3027,14 @@ public class RhythmGame extends JFrame {
             lastSpawnTime = System.currentTimeMillis();
             score = 0;
             combo = 0;
+            maxCombo = 0; // Initialize max combo
             particles = new ArrayList<>();
             timingRatings = new ArrayList<>();
             laneGlowActive = new boolean[NUM_LANES];
             laneGlowStartTime = new long[NUM_LANES];
             isPaused = false;
+            showResults = false; // Reset results state
+            showCredits = false; // Reset credits state
             pauseOverlay.setVisible(false);
             remove(pauseOverlay);
             
@@ -2422,32 +3049,85 @@ public class RhythmGame extends JFrame {
         }
         
         public void startGameWithSong(Song song) {
-            // Set current song and load its map
-            currentSong = song;
-            currentMap = SongMap.loadFromFile(song.getMapFilePath());
-            
-            if (currentMap == null) {
-                // Generate auto-map if no custom map exists
-                currentMap = SongMap.generateAutoMap(song.filePath);
-                currentMap.saveToFile(); // Save for future use
-                System.out.println("Generated and saved auto-map for: " + song.title);
+            // Ensure this runs on the EDT
+            if (!SwingUtilities.isEventDispatchThread()) {
+                SwingUtilities.invokeLater(() -> startGameWithSong(song));
+                return;
             }
             
-            // Calculate song duration based on map
-            if (currentMap.notes.size() > 0) {
-                NoteData lastNote = currentMap.notes.get(currentMap.notes.size() - 1);
-                songDuration = lastNote.time + 5.0; // Add 5 seconds after last note
-            } else {
-                songDuration = 120.0; // Default 2 minutes
+            try {
+                // Validate song
+                if (song == null) {
+                    System.err.println("Error: Song is null");
+                    return;
+                }
+                
+                // Set current song
+                currentSong = song;
+                
+                // Try to load existing map
+                currentMap = null;
+                if (song.hasMapFile()) {
+                    currentMap = SongMap.loadFromFile(song.getMapFilePath());
+                    if (currentMap != null) {
+                        System.out.println("Loaded custom map for: " + song.title);
+                    }
+                }
+                
+                // Generate auto-map if no valid map exists
+                if (currentMap == null) {
+                    currentMap = SongMap.generateAutoMap(song.filePath);
+                    try {
+                        currentMap.saveToFile(); // Save for future use
+                        System.out.println("Generated and saved auto-map for: " + song.title);
+                    } catch (Exception e) {
+                        System.err.println("Warning: Could not save auto-map: " + e.getMessage());
+                    }
+                }
+                
+                // Validate map
+                if (currentMap == null || currentMap.notes.isEmpty()) {
+                    System.err.println("Error: No valid map available for song: " + song.title);
+                    // Create a minimal fallback map
+                    currentMap = new SongMap(song.filePath);
+                    // Add a few default notes
+                    currentMap.addNote(2.0, 0);
+                    currentMap.addNote(3.0, 1);
+                    currentMap.addNote(4.0, 2);
+                    currentMap.addNote(5.0, 3);
+                }
+                
+                // Calculate song duration based on map
+                if (currentMap.notes.size() > 0) {
+                    NoteData lastNote = currentMap.notes.get(currentMap.notes.size() - 1);
+                    songDuration = Math.max(lastNote.time + GameAssets.MAP_END_BUFFER_SECONDS, GameAssets.MINIMUM_MAP_DURATION);
+                } else {
+                    songDuration = GameAssets.DEFAULT_MAP_DURATION;
+                }
+                
+                // Initialize mapping system
+                currentNoteIndex = 0;
+                songStartTime = System.currentTimeMillis();
+                isPlayingWithMap = true;
+                
+                // Reset game state safely on EDT
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        resetGame();
+                        System.out.println("Successfully started game with song: " + song.title + 
+                                         " (" + currentMap.notes.size() + " notes)");
+                    } catch (Exception e) {
+                        System.err.println("Error in resetGame: " + e.getMessage());
+                        backToMenu();
+                    }
+                });
+                
+            } catch (Exception e) {
+                System.err.println("Error starting game with song: " + e.getMessage());
+                e.printStackTrace();
+                // Try to recover by going back to menu on EDT
+                SwingUtilities.invokeLater(() -> backToMenu());
             }
-            
-            // Initialize mapping system
-            currentNoteIndex = 0;
-            songStartTime = System.currentTimeMillis();
-            isPlayingWithMap = true;
-            
-            // Reset game state
-            resetGame();
         }
 
         private void spawnNote(int lane) {
@@ -2527,16 +3207,25 @@ public class RhythmGame extends JFrame {
         
         private void completeSong() {
             songCompleted = true;
-            showResults();
+            if (GameAssets.SHOW_IN_GAME_RESULTS) {
+                showResults = true; // Show results in-game instead of popup
+                timer.stop(); // Stop the game timer
+            } else {
+                // Could add popup results here if needed in future
+                timer.stop();
+            }
         }
         
         private void showResults() {
+            // Calculate final time
+            double finalTime = (System.currentTimeMillis() - songStartTime) / 1000.0;
+            
             // Calculate rank
             String rank = calculateRank();
             
             // Create results dialog
             JDialog resultsDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Song Complete!", true);
-            resultsDialog.setSize(400, 500);
+            resultsDialog.setSize(500, 600);
             resultsDialog.setLocationRelativeTo(this);
             resultsDialog.setLayout(new BorderLayout());
             
@@ -2548,90 +3237,152 @@ public class RhythmGame extends JFrame {
             
             // Title
             JLabel titleLabel = new JLabel(currentSong.title);
-            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
             titleLabel.setForeground(GameAssets.TEXT_COLOR);
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
+            // Time completed
+            JLabel timeLabel = new JLabel(String.format("Time: %.1f seconds", finalTime));
+            timeLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            timeLabel.setForeground(GameAssets.PRIMARY_COLOR);
+            timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
             // Rank
             JLabel rankLabel = new JLabel("Rank: " + rank);
-            rankLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
+            rankLabel.setFont(new Font("Segoe UI", Font.BOLD, 48));
             rankLabel.setForeground(getRankColor(rank));
             rankLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
             // Score
             JLabel scoreLabel = new JLabel("Score: " + score);
-            scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+            scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
             scoreLabel.setForeground(GameAssets.TEXT_COLOR);
             scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
-            // Stats
+            // Max Combo
+            JLabel comboLabel = new JLabel("Max Combo: " + maxCombo);
+            comboLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+            comboLabel.setForeground(GameAssets.ACCENT_COLOR);
+            comboLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            // Stats panel
+            JPanel statsPanel = new JPanel();
+            statsPanel.setBackground(GameAssets.SURFACE_COLOR);
+            statsPanel.setLayout(new GridLayout(2, 2, 10, 10));
+            statsPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+            
             JLabel perfectLabel = new JLabel("Perfect: " + perfectCount);
-            perfectLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            perfectLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             perfectLabel.setForeground(new Color(100, 255, 100));
-            perfectLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            perfectLabel.setHorizontalAlignment(SwingConstants.CENTER);
             
             JLabel goodLabel = new JLabel("Good: " + goodCount);
-            goodLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            goodLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             goodLabel.setForeground(new Color(100, 200, 255));
-            goodLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            goodLabel.setHorizontalAlignment(SwingConstants.CENTER);
             
             JLabel okayLabel = new JLabel("Okay: " + okayCount);
-            okayLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            okayLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             okayLabel.setForeground(new Color(255, 255, 100));
-            okayLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            okayLabel.setHorizontalAlignment(SwingConstants.CENTER);
             
             JLabel missLabel = new JLabel("Miss: " + missCount);
-            missLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            missLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             missLabel.setForeground(new Color(255, 100, 100));
-            missLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            missLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            
+            statsPanel.add(perfectLabel);
+            statsPanel.add(goodLabel);
+            statsPanel.add(okayLabel);
+            statsPanel.add(missLabel);
             
             // Add components to panel
-            resultsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            resultsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             resultsPanel.add(titleLabel);
-            resultsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            resultsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            resultsPanel.add(timeLabel);
+            resultsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
             resultsPanel.add(rankLabel);
-            resultsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            resultsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
             resultsPanel.add(scoreLabel);
-            resultsPanel.add(Box.createRigidArea(new Dimension(0, 30)));
-            resultsPanel.add(perfectLabel);
             resultsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            resultsPanel.add(goodLabel);
-            resultsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            resultsPanel.add(okayLabel);
-            resultsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            resultsPanel.add(missLabel);
+            resultsPanel.add(comboLabel);
+            resultsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            resultsPanel.add(statsPanel);
             
             // Button panel
             JPanel buttonPanel = new JPanel();
             buttonPanel.setBackground(GameAssets.BACKGROUND_COLOR);
-            buttonPanel.setLayout(new FlowLayout());
+            buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
             
-            JButton retryButton = new JButton("Retry");
-            retryButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            retryButton.setBackground(GameAssets.PRIMARY_COLOR);
-            retryButton.setForeground(Color.WHITE);
-            retryButton.setFocusPainted(false);
+            JButton retryButton = createResultsButton("Retry Song", GameAssets.SUCCESS_COLOR);
             retryButton.addActionListener(e -> {
                 resultsDialog.dispose();
                 startGameWithSong(currentSong);
             });
             
-            JButton menuButton = new JButton("Song Selection");
-            menuButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            menuButton.setBackground(GameAssets.PRIMARY_COLOR);
-            menuButton.setForeground(Color.WHITE);
-            menuButton.setFocusPainted(false);
-            menuButton.addActionListener(e -> {
+            JButton songSelectionButton = createResultsButton("Song Selection", GameAssets.PRIMARY_COLOR);
+            songSelectionButton.addActionListener(e -> {
                 resultsDialog.dispose();
                 ((RhythmGame) SwingUtilities.getWindowAncestor(this)).showSongSelection();
             });
             
+            JButton mainMenuButton = createResultsButton("Main Menu", GameAssets.MAIN_BUTTON_COLOR);
+            mainMenuButton.addActionListener(e -> {
+                resultsDialog.dispose();
+                ((RhythmGame) SwingUtilities.getWindowAncestor(this)).backToMenu();
+            });
+            
             buttonPanel.add(retryButton);
-            buttonPanel.add(menuButton);
+            buttonPanel.add(songSelectionButton);
+            buttonPanel.add(mainMenuButton);
             
             resultsDialog.add(resultsPanel, BorderLayout.CENTER);
             resultsDialog.add(buttonPanel, BorderLayout.SOUTH);
             resultsDialog.setVisible(true);
+        }
+        
+        private JButton createResultsButton(String text, Color bgColor) {
+            JButton button = new JButton(text) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    if (getModel().isRollover()) {
+                        g2d.setColor(bgColor.brighter());
+                    } else {
+                        g2d.setColor(bgColor);
+                    }
+                    
+                    RoundRectangle2D roundedRect = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10);
+                    g2d.fill(roundedRect);
+                    
+                    // Draw border
+                    g2d.setColor(GameAssets.BUTTON_BORDER_COLOR);
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.draw(roundedRect);
+                    
+                    super.paintComponent(g);
+                }
+                
+                @Override
+                public void setContentAreaFilled(boolean b) {}
+                
+                @Override
+                public boolean isOpaque() {
+                    return false;
+                }
+            };
+            
+            button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            button.setForeground(Color.WHITE);
+            button.setFocusPainted(false);
+            button.setBorderPainted(false);
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            button.setPreferredSize(new Dimension(140, 40));
+            
+            return button;
         }
         
         private String calculateRank() {
@@ -2640,10 +3391,10 @@ public class RhythmGame extends JFrame {
             
             double perfectRatio = (double) perfectCount / totalNotes;
             
-            if (perfectRatio >= 0.95) return "S";
-            if (perfectRatio >= 0.85) return "A";
-            if (perfectRatio >= 0.70) return "B";
-            if (perfectRatio >= 0.50) return "C";
+            if (perfectRatio >= GameAssets.S_RANK_THRESHOLD) return "S";
+            if (perfectRatio >= GameAssets.A_RANK_THRESHOLD) return "A";
+            if (perfectRatio >= GameAssets.B_RANK_THRESHOLD) return "B";
+            if (perfectRatio >= GameAssets.C_RANK_THRESHOLD) return "C";
             return "F";
         }
         
@@ -2656,19 +3407,19 @@ public class RhythmGame extends JFrame {
                 default: return new Color(255, 100, 100); // Red
             }
         }
-        
-        // Check for fever mode timeout
 
         private void checkHits() {
             int[] keyMap = ((RhythmGame) SwingUtilities.getWindowAncestor(this)).getKeybinds();
             
             // Reset all notes glowing state
-            notes.forEach(note -> note.glowing = false);
+            // notes.forEach(note -> note.glowing = false); // Removed this line
             
             for (int i = 0; i < notes.size(); i++) {
                 Note note = notes.get(i);
-                if (note.isInHitZone() && keysPressed[keyMap[note.direction]]) {
-                    // Note hit - don't make incoming notes glow, only hit zone arrows glow
+                if (!note.hit && note.isInHitZone() && keysPressed[keyMap[note.direction]]) {
+                    // Note hit - make it glow briefly
+                    note.hit = true;
+                    note.glowing = true; // Set glowing when hit
                     
                     // Calculate timing accuracy
                     int distanceFromHitZone = Math.abs(note.y + GameAssets.NOTE_SIZE / 2 - HIT_ZONE_Y);
@@ -2701,6 +3452,10 @@ public class RhythmGame extends JFrame {
                     score += points;
                     if (!rating.equals("MISS")) {
                         combo++;
+                        // Update max combo if current combo is higher
+                        if (combo > maxCombo) {
+                            maxCombo = combo;
+                        }
                         if (combo >= MAX_COMBO_FOR_FEVER && !feverActive) {
                             feverActive = true;
                             feverStartTime = System.currentTimeMillis();
@@ -2716,7 +3471,6 @@ public class RhythmGame extends JFrame {
                         ));
                     }
                     
-                    note.hit = true;
                     notes.remove(i);
                     i--;
                 }
@@ -2785,14 +3539,15 @@ public class RhythmGame extends JFrame {
         }
 
         // Helper method to draw arrow shapes with custom image support and glow effects
-        private void drawArrow(Graphics2D g2d, int x, int y, int size, int direction, boolean isHitZone) {
+        private void drawArrow(Graphics2D g2d, int x, int y, int size, int direction, boolean isHitZone, boolean shouldGlow) {
             // Try to load custom arrow image first
             BufferedImage arrowImage = loadArrowImage(direction);
             
-            // Check if this lane should glow (key is pressed)
-            boolean shouldGlow = direction < laneGlowActive.length && laneGlowActive[direction];
+            // Check if this lane should glow (key is pressed) for hit zone OR note should glow
+            boolean hitZoneShouldGlow = isHitZone && GameAssets.ENABLE_HIT_ZONE_GLOW && direction < laneGlowActive.length && laneGlowActive[direction];
+            boolean finalShouldGlow = shouldGlow || hitZoneShouldGlow;
             
-            if (shouldGlow) {
+            if (finalShouldGlow) {
                 // Draw glow effect
                 BufferedImage glowImage = GameAssets.getArrowGlowImage(direction);
                 if (glowImage != null) {
@@ -2902,7 +3657,7 @@ public class RhythmGame extends JFrame {
             int y = 0;
             int x;
             boolean hit = false;
-            boolean glowing = false; // Track if note should glow
+            boolean glowing = false; // Track if note should glow when hit
 
             Note(int lane, int direction) {
                 this.lane = lane;
@@ -2916,15 +3671,11 @@ public class RhythmGame extends JFrame {
             }
 
             void draw(Graphics2D g2d) {
-                // Draw glow effect if note is being pressed
-                if (glowing) {
-                    g2d.setColor(new Color(255, 255, 100, 100));
-                    g2d.fillOval(x - GameAssets.ARROW_SIZE, y + GameAssets.NOTE_SIZE / 2 - GameAssets.ARROW_SIZE, 
-                               GameAssets.ARROW_SIZE * 2, GameAssets.ARROW_SIZE * 2);
-                }
+                // Only draw glow if note is glowing (when being hit)
+                boolean shouldGlow = glowing && GameAssets.ENABLE_NOTE_GLOW;
                 
                 // Draw arrow centered in the lane
-                drawArrow(g2d, x, y + GameAssets.NOTE_SIZE / 2, GameAssets.ARROW_SIZE, direction, false);
+                drawArrow(g2d, x, y + GameAssets.NOTE_SIZE / 2, GameAssets.ARROW_SIZE, direction, false, shouldGlow);
             }
 
             boolean isInHitZone() {
