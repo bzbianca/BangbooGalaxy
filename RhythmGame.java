@@ -1098,7 +1098,7 @@ public class RhythmGame extends JFrame {
             titlePanel.setPreferredSize(new Dimension(1200, 450)); // Much wider and taller for mobile game feel
 
             // Load and display title image
-            BufferedImage titleImage = GameAssets.getTextImage(0); // title_text.png is first in TEXT_FILES
+            BufferedImage titleImage = GameAssets.getTextImage(0); // BANGBOOGALAXYTITLE.png is first in TEXT_FILES
             if (titleImage != null) {
                 // Scale the image to fit the title panel while maintaining aspect ratio
                 int panelWidth = 1200;
@@ -1126,7 +1126,7 @@ public class RhythmGame extends JFrame {
                 titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
                 titlePanel.add(titleLabel);
             }
-
+            
             add(titlePanel, BorderLayout.NORTH);
 
             // Center panel for buttons with mobile game spacing
@@ -1340,7 +1340,7 @@ public class RhythmGame extends JFrame {
             buttonPanel.setBackground(GameAssets.BACKGROUND_COLOR);
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 30, 0));
             
-            playButton = createImageButton(GameAssets.getButtonImage(GameAssets.PLAY_BUTTON), "Play Song"); // PLAYMainMenu.png
+playButton = createImageButton(GameAssets.getButtonImage(GameAssets.PLAY_BUTTON), "Play Song"); // PLAYMainMenu.png
             playButton.setPreferredSize(GameAssets.MAIN_BUTTON_SIZE); // Use main menu button size (600x160)
             playButton.addActionListener(e -> {
                 if (selectedSong != null) {
@@ -2260,7 +2260,6 @@ g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
         private static final int MAX_COMBO_FOR_FEVER = 15; // Lower threshold for easier activation
         private static final int FEVER_DURATION = 8000; // 8 seconds
         private static final int FEVER_SCORE_MULTIPLIER = 2; // Double score during fever
-        private static final int FEVER_SPAWN_BONUS = 2; // Extra notes during fever
         
         // Timing windows for scoring (in pixels)
         private static final int PERFECT_WINDOW = 20;
@@ -2388,18 +2387,18 @@ g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
         }
         
         private void handleResultsClick(int x, int y) {
-            // Calculate button positions for new results screen layout
+            // Calculate button positions using the same constants as drawResultsButtons
             int panelWidth = 550;
             int panelHeight = 450;
             int panelX = (WIDTH - panelWidth) / 2;
             int panelY = (HEIGHT - panelHeight) / 2;
             
-            int buttonY = panelY + panelHeight - 60;
-            int buttonWidth = 140;
-            int buttonHeight = 40;
-            int buttonSpacing = 20;
+            int buttonY = panelY + panelHeight - GameAssets.RESULTS_BUTTON_BOTTOM_MARGIN;
+            int buttonWidth = GameAssets.RESULTS_BUTTON_WIDTH;
+            int buttonHeight = GameAssets.RESULTS_BUTTON_HEIGHT;
+            int buttonSpacing = GameAssets.RESULTS_BUTTON_SPACING;
             
-            // Calculate total width and center buttons
+            // Calculate total width and center buttons - same as drawResultsButtons
             int totalButtonWidth = 3 * buttonWidth + 2 * buttonSpacing;
             int startX = panelX + (panelWidth - totalButtonWidth) / 2;
             
@@ -3401,7 +3400,7 @@ g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                     int currentPerfectWindow = feverActive ? PERFECT_WINDOW + 10 : PERFECT_WINDOW;
                     int currentGoodWindow = feverActive ? GOOD_WINDOW + 10 : GOOD_WINDOW;
                     int currentOkayWindow = feverActive ? OKAY_WINDOW + 10 : OKAY_WINDOW;
-                    int scoreMultiplier = feverActive ? 2 : 1;
+                    int scoreMultiplier = feverActive ? FEVER_SCORE_MULTIPLIER : 1;
                     
                     if (distanceFromHitZone <= currentPerfectWindow) {
                         rating = "PERFECT";
