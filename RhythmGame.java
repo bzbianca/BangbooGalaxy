@@ -250,7 +250,9 @@ public class RhythmGame extends JFrame {
             "lane_1_text.png",
             "lane_2_text.png",
             "lane_3_text.png",
-            "lane_4_text.png"
+            "lane_4_text.png",
+            "EOUS.png",
+            "HAPPYEOUS.png"
         };
         
         // Meter images for fever bar and other meters
@@ -554,6 +556,8 @@ public class RhythmGame extends JFrame {
         public static final int MUSIC_VOLUME_TEXT = 7;
         public static final int SFX_VOLUME_TEXT = 8;
         public static final int KEYBINDS_TEXT = 9;
+        public static final int EOUS_TEXT = 10;
+        public static final int HAPPYEOUS_TEXT = 11;
         
         // Meter image indices
         public static final int FEVER_METER_BG = 0;
@@ -2303,6 +2307,10 @@ g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
         private JButton mainMenuButton;
         private JButton quitButton;
         
+        // Cached companion images for performance
+        private static BufferedImage cachedEousImage = null;
+        private static BufferedImage cachedHappyEousImage = null;
+        
         // Mapping system variables
         private Song currentSong;
         private SongMap currentMap;
@@ -2608,6 +2616,9 @@ g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                 g2d.drawRoundRect(x, 0, LANE_WIDTH, HEIGHT, 10, 10);
             }
             
+            // Draw companions (Eous on left, HappyEous on right)
+            drawCompanions(g2d);
+            
             // Draw game elements (always visible, even when paused)
             // Draw score panel
             drawScorePanel(g2d);
@@ -2722,6 +2733,79 @@ g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                 GradientPaint progressGradient = new GradientPaint(barX, barY + barHeight, progressColor, barX, barY + barHeight - progressHeight, GameAssets.SECONDARY_COLOR);
                 g2d.setPaint(progressGradient);
                 g2d.fillRoundRect(barX + 2, barY + barHeight - progressHeight - 2, barWidth - 4, progressHeight, 8, 8);
+            }
+        }
+        
+        private void drawCompanions(Graphics2D g2d) {
+            // Load companion images once and cache them for performance
+            if (cachedEousImage == null) {
+                cachedEousImage = GameAssets.loadImage("BangbooGalaxyIMAGES/EOUS.png");
+            }
+            if (cachedHappyEousImage == null) {
+                cachedHappyEousImage = GameAssets.loadImage("BangbooGalaxyIMAGES/HAPPYEOUS.png");
+            }
+            
+            BufferedImage eousImage = cachedEousImage;
+            BufferedImage happyEousImage = cachedHappyEousImage;
+            
+            // Companion size and positioning
+            int companionWidth = 100; // Reduced size for better performance
+            int companionHeight = 100;
+            int verticalOffset = HEIGHT - 180; // Position near bottom, above hit zone
+            
+            // Calculate positions with more space between companions and lanes
+            int eousX = START_X - companionWidth - 80; // Left side with increased margin
+            int happyEousX = START_X + TOTAL_LANES_WIDTH + 80; // Right side with increased margin
+            
+            // Simplified floating animation (less expensive math)
+            long time = System.currentTimeMillis() / 100; // Slower update rate
+            float eousFloat = (float) Math.sin(time * 0.02) * 5; // Reduced amplitude
+            float happyEousFloat = (float) Math.cos(time * 0.02) * 5; // Opposite phase
+            
+            // Draw Eous on the left
+            if (eousImage != null) {
+                int eousY = verticalOffset + (int) eousFloat;
+                
+                // Simple shadow (less expensive)
+                g2d.setColor(new Color(0, 0, 0, 80));
+                g2d.fillOval(eousX + 5, eousY + companionHeight - 5, companionWidth - 10, 10);
+                
+                // Draw Eous
+                g2d.drawImage(eousImage, eousX, eousY, companionWidth, companionHeight, null);
+                
+                // Simplified glow effect during fever mode
+                if (feverActive) {
+                    g2d.setColor(new Color(255, 200, 50, 30));
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.drawOval(eousX - 3, eousY - 3, companionWidth + 6, companionHeight + 6);
+                }
+            } else {
+                // Simple fallback
+                g2d.setColor(new Color(100, 150, 255));
+                g2d.fillOval(eousX, verticalOffset, companionWidth, companionHeight);
+            }
+            
+            // Draw HappyEous on the right
+            if (happyEousImage != null) {
+                int happyEousY = verticalOffset + (int) happyEousFloat;
+                
+                // Simple shadow
+                g2d.setColor(new Color(0, 0, 0, 80));
+                g2d.fillOval(happyEousX + 5, happyEousY + companionHeight - 5, companionWidth - 10, 10);
+                
+                // Draw HappyEous
+                g2d.drawImage(happyEousImage, happyEousX, happyEousY, companionWidth, companionHeight, null);
+                
+                // Simplified glow effect during fever mode
+                if (feverActive) {
+                    g2d.setColor(new Color(255, 200, 50, 30));
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.drawOval(happyEousX - 3, happyEousY - 3, companionWidth + 6, companionHeight + 6);
+                }
+            } else {
+                // Simple fallback
+                g2d.setColor(new Color(255, 150, 100));
+                g2d.fillOval(happyEousX, verticalOffset, companionWidth, companionHeight);
             }
         }
         

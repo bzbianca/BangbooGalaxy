@@ -1,13 +1,10 @@
-Bianca
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
-Original Artist / License Info
+BANGBOO GALAXY - CREDITS
+
+Game Development: Bianca
+Design: Bianca
+Programming: Bianca
+
+Thanks to:
+Java Swing Framework
+Open Source Community
+Game Development Resources
